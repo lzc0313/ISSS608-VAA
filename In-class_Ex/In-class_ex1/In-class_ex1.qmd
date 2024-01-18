@@ -31,7 +31,7 @@ pacman::p_load(tidyverse,haven)
 
 The code chunk below uses [read_sas()](https://www.haven.tidyverse.org/reference/read_sas.html)of [haven](https://www.haven.tidyverse.org/index.html) to import PISA data in R environment.
 
-```{r} 
+```{r}
 #| eval: false
 stu_qqq <-read_sas("data/cy08msp_stu_qqq.sas7bdat")
 ```
