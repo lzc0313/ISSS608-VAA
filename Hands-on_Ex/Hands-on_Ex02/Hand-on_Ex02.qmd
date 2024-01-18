@@ -1,3 +1,38 @@
 ---
-title: "Hand-on-Ex02"
+title: "Hands-on_ex2"
+date: "Jan 18,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+editor: visual
 ---
+
+# 1 Overview
+
+This exercise will be introduced to several ggplot2 extension for creating statistical graphics.
+
+# 2 Getting Start
+
+## 2.1 Install and Load R Libraries
+
+Beside tidyverse which is introduced in hands on exercies 1, four more R packages will be used. They are:
+
+-   ggrepel: an R package provides geoms for ggplot2 to repel overlapping text labels.
+
+-   ggthemes: an R package provides some extra themes, geoms, and scales for 'ggplot2'.
+
+-   hrbrthemes: an R package provides typography-centric themes and theme components for ggplot2.
+
+-   patchwork: an R package for preparing composite figure created using ggplot2.
+
+Code Chunk below is used to check the packages are installed and also load them into the current R environment.
+
+```{r}
+pacman::p_load(ggrepel, patchwork, ggthemes, hrbrthemes, tidyverse)
+```
+
+After checking there is no issues with installing and uploading the packages, we proceed to import the data used for this exercise.
+
+## 2.2 Importing Data
