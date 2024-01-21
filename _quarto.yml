@@ -16,6 +16,9 @@ website:
           - text: "In-Class Exercise 1"
             href: "In-class_Ex/In-class_ex1/In-class_ex1.html"
       - text: "Take-home Exercise"
+        menu:
+          - text: "Hand-on Exercise 1"
+            href: "Take-home_Ex/Take-home_ex1.html"
     right:
       - href: index.qmd
         text: Home
@@ -23,7 +26,7 @@ website:
 
 format:
   html:
-    theme: morph
+    theme: journal
     css: styles.css
     toc: true
 

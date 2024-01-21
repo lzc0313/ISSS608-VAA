@@ -1,0 +1,161 @@
+---
+title: "Programme for International Student Assessment Education Survey (Singapore) : Exploratory Data Analysis"
+format:
+  html: 
+    fontsize: 1.1em
+    linestretch: 1.7
+date: "Jan 18,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+---
+
+panel tabset 做tab
+
+# 1.0 Project Overview
+
+## 1.1 Project Brief
+
+This project examines the educational landscape in Singapore, with a focus on disparities among students from diverse backgrounds. Despite international recognition for achieving excellence with minimal differences between children from affluent and disadvantaged families, public perception suggests the existence of disparities. The project aims to investigate disparities between elite and neighborhood schools, students from varying socioeconomic backgrounds, and families with different immigration statuses. Insights gained from this study will contribute to an informed discussion on educational equity in Singapore.
+
+## 1.2 Project Objectives
+
+The [data](https://www.oecd.org/pisa/data/2022database/) used for this exercise was released on December 2022 from Programme for International Student Assessment(PISA). The organization survey every three years to observe the education systems worldwide through testing 15 year old students in the subjects of mathematics, reading, and science.
+
+This for this exercise, will be using appropriate **Exploratory Data Analysis (EDA)**methods from R ggplot2 package to reveal:
+
+-   Distribution of Singapore students' performance in mathematics, reading, and science
+
+-   Relationship between these performances with school, gender, and socioeconomic status of the students.
+
+# 2.0 Getting Started (Preparation)
+
+## 2.1 Install & load R packages
+
+Installing necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.
+
+```{r}
+pacman::p_load(tidyverse, ggplot2, ggthemes, gridExtra, ggrepel, patchwork, hrbrthemes)
+```
+
+## 2.2 Importing PISA Data
+
+For this exercise, we are only examining the Singapore students. So the data load in the below code chunk only contains
+
+```{r}
+sg_stu <- readRDS("C:/lzc0313/ISSS608-VAA/In-class_Ex/In-class_ex1/data/stu_qqq_SG.rds")
+```
+
+After examine the data using <mark>dim()</mark>,<mark>names()</mark>,<mark>summary()</mark> functions found that most of the variables from the survey is not needed for this exercise, to make it more convinient and efficient, we only extract the variables needed for this exercise as a new table for later use.
+
+```{r}
+# Selecting specific columns from sg_stu
+selected_columns <- sg_stu[, c("CNTSCHID", "ST004D01T", "CNTSTUID","ESCS")]
+
+# Calculate the mean for each subject
+mean_pv_math <- rowMeans(sg_stu[, c("PV1MATH", "PV2MATH", "PV3MATH", "PV4MATH", "PV5MATH", 
+                                    "PV6MATH", "PV7MATH", "PV8MATH", "PV9MATH", "PV10MATH")], na.rm = TRUE)
+
+mean_pv_read <- rowMeans(sg_stu[, c("PV1READ", "PV2READ", "PV3READ", "PV4READ", "PV5READ", 
+                                    "PV6READ", "PV7READ", "PV8READ", "PV9READ", "PV10READ")], na.rm = TRUE)
+
+mean_pv_scie <- rowMeans(sg_stu[, c("PV1SCIE", "PV2SCIE", "PV3SCIE", "PV4SCIE", "PV5SCIE", 
+                                    "PV6SCIE", "PV7SCIE", "PV8SCIE", "PV9SCIE", "PV10SCIE")], na.rm = TRUE)
+
+# Combine selected columns and new calculations into sg_stu_eda
+sg_stu_eda <- cbind(selected_columns, mean_pv_math, mean_pv_read, mean_pv_scie)
+
+```
+
+```{r}
+head(sg_stu_eda,10)
+
+```
+
+# 3.0 Exploratory Data Analysis
+
+## 3.1 Distribution anaylsis
+
+Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms. 
+
+::: {.panel-tabset}
+### Distribution of subjects
+```{r, eval=TRUE, echo=FALSE}
+h1 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_math)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") + 
+  ggtitle("Mathe")
+h2 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_scie)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") +
+  ggtitle("Science")
+h3 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_read)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") +
+  ggtitle("Reading")
+```
+
+```{r distribution-plot, eval=TRUE, echo=FALSE}
+patchwork <- h1 + h2 + h3
+patchwork <- patchwork + plot_layout(ncol = 3)
+patchwork & theme_economist()
+```
+
+### codes
+
+```{r, eval=FALSE}
+h1 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_math)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") + 
+  ggtitle("Math")
+h2 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_scie)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") +
+  ggtitle("Science ")
+h3 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_read)) +
+  geom_histogram(bins=20, color="grey25", fill="grey90") +
+  ggtitle("Reading")
+
+patchwork <- h1 + h2 + h3
+patchwork <- patchwork + plot_layout(ncol = 3)
+patchwork & theme_economist()
+```
+
+:::
+
+The analysis of Singapore students' performance across mathematics, science, and reading reveals a notable strength in mathematics, evidenced by a maximum score of 842.72 that surpasses the top scores in science (801.9) and reading (797.59). The data indicates a wider range of abilities in reading, as seen by the lowest minimum score of 158.5626, compared to mathematics (262.564) and science (242.0194), suggesting that students excel in numerical and scientific reasoning.
+
+## 3.2 Stacked Density Plot
+
+Examining distributions individually might not provide a clear comparison; however, a stacked density plot could facilitate a more straightforward comparison across the subjects by overlaying their distributions.
+
+::: panel-tabset
+### Stacked Density plot
+
+```{r, eval: TRUE, echo=FALSE}
+ggplot(sg_stu_eda) +
+  geom_density(aes(x = mean_pv_math, fill = "Mathematics"), alpha = 0.5) +
+  geom_density(aes(x = mean_pv_read, fill = "Reading"), alpha = 0.5) +
+  geom_density(aes(x = mean_pv_scie, fill = "Science"), alpha = 0.5) +
+  ggtitle("Density Plot of Scores by Subject") +
+  xlab("Scores") +
+  ylab("Density") +
+  scale_fill_manual(values = c("Mathematics" = "blue", "Reading" = "red", "Science" = "green"))
+```
+
+### Codes
+
+```{r, eval=FALSE}
+ggplot(sg_stu_eda) +
+  geom_density(aes(x = mean_pv_math, fill = "Mathematics"), alpha = 0.5) +
+  geom_density(aes(x = mean_pv_read, fill = "Reading"), alpha = 0.5) +
+  geom_density(aes(x = mean_pv_scie, fill = "Science"), alpha = 0.5) +
+  ggtitle("Density Plot of Scores by Subject") +
+  xlab("Scores") +
+  ylab("Density") +
+  scale_fill_manual(values = c("Mathematics" = "blue", "Reading" = "red", "Science" = "green"))
+```
+:::
+
+The stacked density plot gives a more clear view on the performance of these three subjects for Singapore students, we can see that it supports the observations we discovered in section 3.1. Singapore students perform mathematics as the   
+
+## 3.3 Boxplot of Subjects
+
+# 4.0 Summary

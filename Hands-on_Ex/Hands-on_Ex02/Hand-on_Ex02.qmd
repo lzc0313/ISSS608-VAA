@@ -159,20 +159,22 @@ ggplot(data=exam_data,
               grid = "Y")
 ```
 
-\`\`\`html
+<div class="card text-white bg-primary mb-3" style="max-width: 40rem;">
 
-::: {style="border: 1px solid green; padding: 10px; margin: 8px;"}
-**What can we learn from the above code chunk?**
+::: card-header
+What can we learn from the above code chunk?
+:::
 
--   <p>
-
-    axis_title_size argument is used to increase the font size of the axis title to 18,
+::: card-body
+-   axis_title_size argument is used to increase the font size of the axis title to 18,
 
 -   base_size argument is used to increase the default axis label to 15, and
 
 -   grid argument is used to remove the x-axis grid lines.
 
     </p>
+
+    </div>
 :::
 
 ## 2.5 Beyond Single Graph
@@ -277,6 +279,7 @@ p3 + inset_element(p2,
 ### 2.5.6 Creating composite figure using patchwork and ggtheme
 
 Figure below is created by combining patchwork and theme_economist() of ggthemes package discussed earlier.
+
 ```{r}
 patchwork <- (p1 / p2) | p3
 patchwork & theme_economist()
