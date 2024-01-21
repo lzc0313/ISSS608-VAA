@@ -12,8 +12,6 @@ execute:
   warning: false
 ---
 
-panel tabset 做tab
-
 # 1.0 Project Overview
 
 ## 1.1 Project Brief
@@ -37,7 +35,7 @@ This for this exercise, will be using appropriate **Exploratory Data Analysis (E
 Installing necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.
 
 ```{r}
-pacman::p_load(tidyverse, ggplot2, ggthemes, gridExtra, ggrepel, patchwork, hrbrthemes)
+pacman::p_load(tidyverse, ggdist, ggplot2, ggthemes, gridExtra, ggrepel, patchwork, hrbrthemes, dplyr)
 ```
 
 ## 2.2 Importing PISA Data
@@ -69,6 +67,22 @@ sg_stu_eda <- cbind(selected_columns, mean_pv_math, mean_pv_read, mean_pv_scie)
 
 ```
 
+Total of 7 Variables are used
+
+-   **CNTSCHID**, (Intl. School ID)
+
+-   **ST004D01T**, (Students gender)
+
+-   **CNTSTUID**, (Intl. Student ID)
+
+-   **ESCS**, (Index of economic, social, and culture status)
+
+-   **mean_pv_math**, (average of plausible value 1-10 of mathematics)
+
+-   **mean_pv_read**, (average of plausible value 1-10 of reading)
+
+-   **mean_pv_scie**, (average of plausible value 1-10 of science)
+
 ```{r}
 head(sg_stu_eda,10)
 
@@ -76,12 +90,13 @@ head(sg_stu_eda,10)
 
 # 3.0 Exploratory Data Analysis
 
-## 3.1 Distribution anaylsis
+## 3.1 Distribution Anaylsis
 
-Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms. 
+Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms.
 
-::: {.panel-tabset}
+::: panel-tabset
 ### Distribution of subjects
+
 ```{r, eval=TRUE, echo=FALSE}
 h1 <- ggplot(data=sg_stu_eda, aes(x = mean_pv_math)) +
   geom_histogram(bins=20, color="grey25", fill="grey90") + 
@@ -117,7 +132,6 @@ patchwork <- h1 + h2 + h3
 patchwork <- patchwork + plot_layout(ncol = 3)
 patchwork & theme_economist()
 ```
-
 :::
 
 The analysis of Singapore students' performance across mathematics, science, and reading reveals a notable strength in mathematics, evidenced by a maximum score of 842.72 that surpasses the top scores in science (801.9) and reading (797.59). The data indicates a wider range of abilities in reading, as seen by the lowest minimum score of 158.5626, compared to mathematics (262.564) and science (242.0194), suggesting that students excel in numerical and scientific reasoning.
@@ -137,7 +151,7 @@ ggplot(sg_stu_eda) +
   ggtitle("Density Plot of Scores by Subject") +
   xlab("Scores") +
   ylab("Density") +
-  scale_fill_manual(values = c("Mathematics" = "blue", "Reading" = "red", "Science" = "green"))
+  scale_fill_manual(values = c("Mathematics" = "red", "Reading" = "green", "Science" = "blue"))
 ```
 
 ### Codes
@@ -150,12 +164,120 @@ ggplot(sg_stu_eda) +
   ggtitle("Density Plot of Scores by Subject") +
   xlab("Scores") +
   ylab("Density") +
-  scale_fill_manual(values = c("Mathematics" = "blue", "Reading" = "red", "Science" = "green"))
+  scale_fill_manual(values = c("Mathematics" = "red", "Reading" = "green", "Science" = "blue"))
 ```
 :::
 
-The stacked density plot gives a more clear view on the performance of these three subjects for Singapore students, we can see that it supports the observations we discovered in section 3.1. Singapore students perform mathematics as the   
+The density plot reinforces the findings from the distribution analysis, showing that Mathematics is a standout subject for Singapore students, with a distribution indicating not only higher peak scores but also a broader range of high achievers. The overlap between Science and Reading suggests similar performance levels in these subjects, with a less pronounced rightward extension than Mathematics, implying fewer high scorers. The shape and spread of the distributions indicate variability in student performance across all subjects, with Mathematics displaying a potential for both higher peaks and greater spread, hinting at a wider variance in achievement. These visual cues complement the earlier analysis, underscoring Mathematics as a strong suit in the Singapore education system while highlighting the need for continued focus on literacy to address the lower performance and greater variability observed in Reading.
 
-## 3.3 Boxplot of Subjects
+## 3.3 School Impact on Singapore Student Subjects Score
 
-# 4.0 Summary
+It is also important to examine whether students in different schools exhibit variations in their performance across various subjects, as some schools may excel in teaching certain subjects compared to others. Since the school id has a very large sample, we are using a heatmap to display the significance.
+
+::: panel-tabset
+
+### Heatmap
+
+```{r,heatmap-panel, eval: TRUE, echo=FALSE}
+sg_stu_eda_long <- sg_stu_eda %>%
+  pivot_longer(
+    cols = starts_with("mean_pv_"), 
+    names_to = "subject", 
+    values_to = "score"
+  ) %>%
+  mutate(CNTSCHID = as.factor(CNTSCHID), 
+         subject = factor(subject, levels = c("mean_pv_math", "mean_pv_read", "mean_pv_scie"),
+                          labels = c("Mathematics", "Reading", "Science")))
+
+ggplot(sg_stu_eda_long, aes(x = CNTSCHID, y = subject, fill = score)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "blue") +  # Adjust the color scale as needed
+  theme_minimal() +
+  labs(x = "School ID", y = "Subject", 
+       title = "Heatmap of Subject Scores Across Schools")
+```
+
+### Codes
+
+```{r, eval=FALSE}
+sg_stu_eda_long <- sg_stu_eda %>%
+  pivot_longer(
+    cols = starts_with("mean_pv_"), 
+    names_to = "subject", 
+    values_to = "score"
+  ) %>%
+  mutate(CNTSCHID = as.factor(CNTSCHID), 
+         subject = factor(subject, levels = c("mean_pv_math", "mean_pv_read", "mean_pv_scie"),
+                          labels = c("Mathematics", "Reading", "Science")))
+
+ggplot(sg_stu_eda_long, aes(x = CNTSCHID, y = subject, fill = score)) +
+  geom_tile() +
+  scale_fill_gradient(low = "white", high = "blue") +  # Adjust the color scale as needed
+  theme_minimal() +
+  labs(x = "School ID", y = "Subject", 
+       title = "Heatmap of Subject Scores Across Schools")
+```
+:::
+
+From the heatmap presented earlier, several noteworthy observations can be made. Firstly, it's evident that students from certain schools consistently maintain similar scores across all three subjects. However, in other schools, there is a noticeable trend where science and mathematics scores are higher, while reading scores appear to be comparatively lower.
+
+Furthermore, it's interesting to note that schools achieving high scores in mathematics also tend to perform well in science, suggesting a potential correlation between these two subjects. Additionally, there are instances, albeit rare, where certain schools excel in reading, outperforming their scores in the other two subjects. These observations indicate the presence of distinct patterns and potentially valuable insights into the performance of students across different schools and subjects.
+
+## 3.4 Gender Impact on Singapore Student Subjects Score
+
+Next, we examine the gender impact on Singapore student's different subject scores, as from what most people typically knows different gender perform differently in certain subjects, so it is important to check that if gender shows significance on the subjects score.
+
+::: panel-tabset
+
+### Boxplot
+```{r,boxplot-panel, eval: TRUE, echo=FALSE}
+sg_stu_eda_long$ST004D01T <- factor(sg_stu_eda_long$ST004D01T, levels = c("1", "2"), labels = c("Female", "Male"))
+
+ggplot(sg_stu_eda_long, aes(x = ST004D01T, y = score, fill = subject)) +
+  geom_boxplot(position = position_dodge(1)) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "darkred", position = position_dodge(1)) +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = 1.5, color="darkblue",position=position_dodge(1)) +
+  stat_summary(fun = median, geom = "line", size = 0.5, color = "darkblue", position = position_dodge(1)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+        legend.position = "bottom") +
+  labs(x = "Gender", y = "Score", 
+       title = "Boxplot of Subject Scores Across Gender", 
+       fill = "Subjects")
+```
+
+### Codes
+```{r, eval=FALSE}
+sg_stu_eda_long$ST004D01T <- factor(sg_stu_eda_long$ST004D01T, levels = c("1", "2"), labels = c("Female", "Male"))
+
+ggplot(sg_stu_eda_long, aes(x = ST004D01T, y = score, fill = subject)) +
+  geom_boxplot(position = position_dodge(1)) +
+  stat_summary(fun = mean, geom = "point", shape = 20, size = 3, color = "darkred", position = position_dodge(1)) +
+  stat_summary(fun = mean, geom = "text", aes(label = round(..y.., 1)), vjust = 1.5, color="darkblue",position=position_dodge(1)) +
+  stat_summary(fun = median, geom = "line", size = 0.5, color = "darkblue", position = position_dodge(1)) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+        legend.position = "bottom") +
+  labs(x = "Gender", y = "Score", 
+       title = "Boxplot of Subject Scores Across Gender", 
+       fill = "Subjects")
+```
+:::
+
+-   Mathematics: Males exhibit a higher average score compared to females, with the mean score for males being approximately 11 points higher. This suggests a notable performance advantage for males in mathematics within this sample.
+
+-   Reading: Females outperform males by a substantial margin, with their average score being approximately 20 points higher. This considerable difference highlights a stronger performance in reading for females.
+
+-   Science: Males again have a higher average score, with the difference being approximately 6 points. While this advantage is less pronounced than in mathematics, it still indicates better performance by males in science.
+
+The interquartile range (IQR), which represents the middle 50% of scores, are different across genders for each subject. Males tend to have larger IQR across all subject compare to female, a larger IQR indicates more variability in student performance.The presence of outliers, as indicated by points beyond the whiskers of the boxplots, suggesting that there are students with scores that are unusually low or high compared to their peers.
+
+Further analysis might be needed: Adding confidence intervals around the mean could provide insight into the statistical significance of the differences in means between genders.
+
+## 3.5 Index of Economic, Social, Cultural Status Impact on Singapore Student Subjects Score
+
+
+
+
+
+# Conclusion

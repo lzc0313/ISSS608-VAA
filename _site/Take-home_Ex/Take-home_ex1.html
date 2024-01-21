@@ -190,11 +190,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </ul></li>
   <li><a href="#exploratory-data-analysis" id="toc-exploratory-data-analysis" class="nav-link" data-scroll-target="#exploratory-data-analysis">3.0 Exploratory Data Analysis</a>
   <ul class="collapse">
-  <li><a href="#distribution-anaylsis" id="toc-distribution-anaylsis" class="nav-link" data-scroll-target="#distribution-anaylsis">3.1 Distribution anaylsis</a></li>
+  <li><a href="#distribution-anaylsis" id="toc-distribution-anaylsis" class="nav-link" data-scroll-target="#distribution-anaylsis">3.1 Distribution Anaylsis</a></li>
   <li><a href="#stacked-density-plot" id="toc-stacked-density-plot" class="nav-link" data-scroll-target="#stacked-density-plot">3.2 Stacked Density Plot</a></li>
-  <li><a href="#boxplot-of-subjects" id="toc-boxplot-of-subjects" class="nav-link" data-scroll-target="#boxplot-of-subjects">3.3 Boxplot of Subjects</a></li>
+  <li><a href="#school-impact-on-singapore-student-subjects-score" id="toc-school-impact-on-singapore-student-subjects-score" class="nav-link" data-scroll-target="#school-impact-on-singapore-student-subjects-score">3.3 School Impact on Singapore Student Subjects Score</a></li>
+  <li><a href="#gender-impact-on-singapore-student-subjects-score" id="toc-gender-impact-on-singapore-student-subjects-score" class="nav-link" data-scroll-target="#gender-impact-on-singapore-student-subjects-score">3.4 Gender Impact on Singapore Student Subjects Score</a></li>
+  <li><a href="#index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score" id="toc-index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score" class="nav-link" data-scroll-target="#index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score">3.5 Index of Economic, Social, Cultural Status Impact on Singapore Student Subjects Score</a></li>
   </ul></li>
-  <li><a href="#summary" id="toc-summary" class="nav-link" data-scroll-target="#summary">4.0 Summary</a></li>
+  <li><a href="#conclusion" id="toc-conclusion" class="nav-link" data-scroll-target="#conclusion">Conclusion</a></li>
   </ul>
 </nav>
     </div>
@@ -230,7 +232,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </header>
 
-<p>panel tabset 做tab</p>
 <section id="project-overview" class="level1">
 <h1>1.0 Project Overview</h1>
 <section id="project-brief" class="level2">
@@ -253,7 +254,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="install-load-r-packages">2.1 Install &amp; load R packages</h2>
 <p>Installing necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, ggplot2, ggthemes, gridExtra, ggrepel, patchwork, hrbrthemes)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(tidyverse, ggdist, ggplot2, ggthemes, gridExtra, ggrepel, patchwork, hrbrthemes, dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="importing-pisa-data" class="level2">
@@ -280,6 +281,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine selected columns and new calculations into sg_stu_eda</span></span>
 <span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>sg_stu_eda <span class="ot">&lt;-</span> <span class="fu">cbind</span>(selected_columns, mean_pv_math, mean_pv_read, mean_pv_scie)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>Total of 7 Variables are used</p>
+<ul>
+<li><p><strong>CNTSCHID</strong>, (Intl. School ID)</p></li>
+<li><p><strong>ST004D01T</strong>, (Students gender)</p></li>
+<li><p><strong>CNTSTUID</strong>, (Intl. Student ID)</p></li>
+<li><p><strong>ESCS</strong>, (Index of economic, social, and culture status)</p></li>
+<li><p><strong>mean_pv_math</strong>, (average of plausible value 1-10 of mathematics)</p></li>
+<li><p><strong>mean_pv_read</strong>, (average of plausible value 1-10 of reading)</p></li>
+<li><p><strong>mean_pv_scie</strong>, (average of plausible value 1-10 of science)</p></li>
+</ul>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(sg_stu_eda,<span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -301,7 +312,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="exploratory-data-analysis" class="level1">
 <h1>3.0 Exploratory Data Analysis</h1>
 <section id="distribution-anaylsis" class="level2">
-<h2 class="anchored" data-anchor-id="distribution-anaylsis">3.1 Distribution anaylsis</h2>
+<h2 class="anchored" data-anchor-id="distribution-anaylsis">3.1 Distribution Anaylsis</h2>
 <p>Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms.</p>
 <div class="tabset-margin-container"></div><div class="panel-tabset">
 <ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-1-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-1" role="tab" aria-controls="tabset-1-1" aria-selected="true">Distribution of subjects</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-1-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-1-2" role="tab" aria-controls="tabset-1-2" aria-selected="false">codes</a></li></ul>
@@ -356,19 +367,97 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggtitle</span>(<span class="st">"Density Plot of Scores by Subject"</span>) <span class="sc">+</span></span>
 <span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Scores"</span>) <span class="sc">+</span></span>
 <span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Density"</span>) <span class="sc">+</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Mathematics"</span> <span class="ot">=</span> <span class="st">"blue"</span>, <span class="st">"Reading"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"Science"</span> <span class="ot">=</span> <span class="st">"green"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"Mathematics"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"Reading"</span> <span class="ot">=</span> <span class="st">"green"</span>, <span class="st">"Science"</span> <span class="ot">=</span> <span class="st">"blue"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
 </div>
-<p>The stacked density plot gives a more clear view on the performance of these three subjects for Singapore students, we can see that it supports the observations we discovered in section 3.1. Singapore students perform mathematics as the</p>
+<p>The density plot reinforces the findings from the distribution analysis, showing that Mathematics is a standout subject for Singapore students, with a distribution indicating not only higher peak scores but also a broader range of high achievers. The overlap between Science and Reading suggests similar performance levels in these subjects, with a less pronounced rightward extension than Mathematics, implying fewer high scorers. The shape and spread of the distributions indicate variability in student performance across all subjects, with Mathematics displaying a potential for both higher peaks and greater spread, hinting at a wider variance in achievement. These visual cues complement the earlier analysis, underscoring Mathematics as a strong suit in the Singapore education system while highlighting the need for continued focus on literacy to address the lower performance and greater variability observed in Reading.</p>
 </section>
-<section id="boxplot-of-subjects" class="level2">
-<h2 class="anchored" data-anchor-id="boxplot-of-subjects">3.3 Boxplot of Subjects</h2>
+<section id="school-impact-on-singapore-student-subjects-score" class="level2">
+<h2 class="anchored" data-anchor-id="school-impact-on-singapore-student-subjects-score">3.3 School Impact on Singapore Student Subjects Score</h2>
+<p>It is also important to examine whether students in different schools exhibit variations in their performance across various subjects, as some schools may excel in teaching certain subjects compared to others. Since the school id has a very large sample, we are using a heatmap to display the significance.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-3-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-1" role="tab" aria-controls="tabset-3-1" aria-selected="true">Heatmap</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-3-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-3-2" role="tab" aria-controls="tabset-3-2" aria-selected="false">Codes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-3-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Take-home_ex1_files/figure-html/heatmap-panel, eval- TRUE-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-3-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-3-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>sg_stu_eda_long <span class="ot">&lt;-</span> sg_stu_eda <span class="sc">%&gt;%</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_longer</span>(</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">cols =</span> <span class="fu">starts_with</span>(<span class="st">"mean_pv_"</span>), </span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_to =</span> <span class="st">"subject"</span>, </span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_to =</span> <span class="st">"score"</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">CNTSCHID =</span> <span class="fu">as.factor</span>(CNTSCHID), </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">subject =</span> <span class="fu">factor</span>(subject, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"mean_pv_math"</span>, <span class="st">"mean_pv_read"</span>, <span class="st">"mean_pv_scie"</span>),</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>                          <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Mathematics"</span>, <span class="st">"Reading"</span>, <span class="st">"Science"</span>)))</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sg_stu_eda_long, <span class="fu">aes</span>(<span class="at">x =</span> CNTSCHID, <span class="at">y =</span> subject, <span class="at">fill =</span> score)) <span class="sc">+</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_tile</span>() <span class="sc">+</span></span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_gradient</span>(<span class="at">low =</span> <span class="st">"white"</span>, <span class="at">high =</span> <span class="st">"blue"</span>) <span class="sc">+</span>  <span class="co"># Adjust the color scale as needed</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"School ID"</span>, <span class="at">y =</span> <span class="st">"Subject"</span>, </span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Heatmap of Subject Scores Across Schools"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>From the heatmap presented earlier, several noteworthy observations can be made. Firstly, it’s evident that students from certain schools consistently maintain similar scores across all three subjects. However, in other schools, there is a noticeable trend where science and mathematics scores are higher, while reading scores appear to be comparatively lower.</p>
+<p>Furthermore, it’s interesting to note that schools achieving high scores in mathematics also tend to perform well in science, suggesting a potential correlation between these two subjects. Additionally, there are instances, albeit rare, where certain schools excel in reading, outperforming their scores in the other two subjects. These observations indicate the presence of distinct patterns and potentially valuable insights into the performance of students across different schools and subjects.</p>
+</section>
+<section id="gender-impact-on-singapore-student-subjects-score" class="level2">
+<h2 class="anchored" data-anchor-id="gender-impact-on-singapore-student-subjects-score">3.4 Gender Impact on Singapore Student Subjects Score</h2>
+<p>Next, we examine the gender impact on Singapore student’s different subject scores, as from what most people typically knows different gender perform differently in certain subjects, so it is important to check that if gender shows significance on the subjects score.</p>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-4-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-1" role="tab" aria-controls="tabset-4-1" aria-selected="true">Boxplot</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-4-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-4-2" role="tab" aria-controls="tabset-4-2" aria-selected="false">Codes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-4-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Take-home_ex1_files/figure-html/boxplot-panel, eval- TRUE-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-4-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-4-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>sg_stu_eda_long<span class="sc">$</span>ST004D01T <span class="ot">&lt;-</span> <span class="fu">factor</span>(sg_stu_eda_long<span class="sc">$</span>ST004D01T, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"1"</span>, <span class="st">"2"</span>), <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Female"</span>, <span class="st">"Male"</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(sg_stu_eda_long, <span class="fu">aes</span>(<span class="at">x =</span> ST004D01T, <span class="at">y =</span> score, <span class="at">fill =</span> subject)) <span class="sc">+</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"point"</span>, <span class="at">shape =</span> <span class="dv">20</span>, <span class="at">size =</span> <span class="dv">3</span>, <span class="at">color =</span> <span class="st">"darkred"</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> mean, <span class="at">geom =</span> <span class="st">"text"</span>, <span class="fu">aes</span>(<span class="at">label =</span> <span class="fu">round</span>(..y.., <span class="dv">1</span>)), <span class="at">vjust =</span> <span class="fl">1.5</span>, <span class="at">color=</span><span class="st">"darkblue"</span>,<span class="at">position=</span><span class="fu">position_dodge</span>(<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun =</span> median, <span class="at">geom =</span> <span class="st">"line"</span>, <span class="at">size =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"darkblue"</span>, <span class="at">position =</span> <span class="fu">position_dodge</span>(<span class="dv">1</span>)) <span class="sc">+</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">90</span>, <span class="at">hjust =</span> <span class="dv">1</span>), </span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>        <span class="at">legend.position =</span> <span class="st">"bottom"</span>) <span class="sc">+</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Gender"</span>, <span class="at">y =</span> <span class="st">"Score"</span>, </span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Boxplot of Subject Scores Across Gender"</span>, </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">fill =</span> <span class="st">"Subjects"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<ul>
+<li><p>Mathematics: Males exhibit a higher average score compared to females, with the mean score for males being approximately 11 points higher. This suggests a notable performance advantage for males in mathematics within this sample.</p></li>
+<li><p>Reading: Females outperform males by a substantial margin, with their average score being approximately 20 points higher. This considerable difference highlights a stronger performance in reading for females.</p></li>
+<li><p>Science: Males again have a higher average score, with the difference being approximately 6 points. While this advantage is less pronounced than in mathematics, it still indicates better performance by males in science.</p></li>
+</ul>
+<p>The interquartile range (IQR), which represents the middle 50% of scores, are different across genders for each subject. Males tend to have larger IQR across all subject compare to female, a larger IQR indicates more variability in student performance.The presence of outliers, as indicated by points beyond the whiskers of the boxplots, suggesting that there are students with scores that are unusually low or high compared to their peers.</p>
+<p>Further analysis might be needed: Adding confidence intervals around the mean could provide insight into the statistical significance of the differences in means between genders.</p>
+</section>
+<section id="index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score" class="level2">
+<h2 class="anchored" data-anchor-id="index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score">3.5 Index of Economic, Social, Cultural Status Impact on Singapore Student Subjects Score</h2>
 </section>
 </section>
-<section id="summary" class="level1">
-<h1>4.0 Summary</h1>
+<section id="conclusion" class="level1">
+<h1>Conclusion</h1>
 
 
 </section>
