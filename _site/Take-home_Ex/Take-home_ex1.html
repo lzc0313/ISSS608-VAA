@@ -454,10 +454,89 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score" class="level2">
 <h2 class="anchored" data-anchor-id="index-of-economic-social-cultural-status-impact-on-singapore-student-subjects-score">3.5 Index of Economic, Social, Cultural Status Impact on Singapore Student Subjects Score</h2>
+<p>From the dataset, it is observe that the Index of Economic, Social, Cultural Status has differnt positive and negative values, and it seem that differnt values correspond with different range of subject scores. So, there might be relationship between this two variables, let use some EDA techniques to explore.</p>
+<p>First, since the ESCS value as a wide range, we can use bin function <mark><em>ntile()</em></mark> to divide ESCS values into quantiles.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data_escs <span class="ot">&lt;-</span> sg_stu_eda <span class="sc">%&gt;%</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ESCS)) <span class="sc">%&gt;%</span> <span class="co"># Remove rows with NA in ESCS</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">ESCS_bin =</span> <span class="fu">ntile</span>(ESCS, <span class="dv">8</span>)) <span class="co"># Bin ESCS into 8 bins</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Now, summarize to find the range of ESCS in each bin</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>bin_ranges <span class="ot">&lt;-</span> data_escs <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(ESCS_bin) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">min_ESCS =</span> <span class="fu">min</span>(ESCS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">max_ESCS =</span> <span class="fu">max</span>(ESCS, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>bin_ranges</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  ESCS_bin min_ESCS max_ESCS
+     &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+1        1   -3.55    -0.788
+2        2   -0.786   -0.233
+3        3   -0.232    0.174
+4        4    0.174    0.482
+5        5    0.482    0.706
+6        6    0.706    0.904
+7        7    0.904    1.14 
+8        8    1.14     3.28 </code></pre>
+</div>
+</div>
+<div class="tabset-margin-container"></div><div class="panel-tabset">
+<ul class="nav nav-tabs" role="tablist"><li class="nav-item" role="presentation"><a class="nav-link active" id="tabset-5-1-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-1" role="tab" aria-controls="tabset-5-1" aria-selected="true">Boxplot Subject vs ESCS bins</a></li><li class="nav-item" role="presentation"><a class="nav-link" id="tabset-5-2-tab" data-bs-toggle="tab" data-bs-target="#tabset-5-2" role="tab" aria-controls="tabset-5-2" aria-selected="false">Codes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1" class="tab-pane active" role="tabpanel" aria-labelledby="tabset-5-1-tab">
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Take-home_ex1_files/figure-html/boxplot2-panel, eval- TRUE-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Take-home_ex1_files/figure-html/boxplot-panel3, eval- TRUE-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<p><img src="Take-home_ex1_files/figure-html/boxplot-panel4, eval- TRUE-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</div>
+<div id="tabset-5-2" class="tab-pane" role="tabpanel" aria-labelledby="tabset-5-2-tab">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_escs, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(ESCS_bin), <span class="at">y =</span> mean_pv_math)) <span class="sc">+</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'ESCS Bin'</span>, <span class="at">y =</span> <span class="st">'Math Score'</span>) <span class="sc">+</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_escs, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(ESCS_bin), <span class="at">y =</span> mean_pv_scie)) <span class="sc">+</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'ESCS Bin'</span>, <span class="at">y =</span> <span class="st">'Science Score'</span>) <span class="sc">+</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(data_escs, <span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">factor</span>(ESCS_bin), <span class="at">y =</span> mean_pv_read)) <span class="sc">+</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">'ESCS Bin'</span>, <span class="at">y =</span> <span class="st">'Reading Score'</span>) <span class="sc">+</span></span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_bw</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<p>From the exploratory data analysis (EDA), it is evident that as the Index of Economic, Social, Cultural Status (ESCS) increases from bin 1 to bin 8, the scores in all three subjects exhibit a consistent upward trend. This observation holds true despite the presence of some outliers within each bin, which can affect the overall sample distribution. Furthermore, it is notable that the interquartile range (IQR) increases progressively as we move from lower ESCS bins to higher ones, indicating a widening spread of scores. This widening IQR suggests a greater degree of variability in scores among students as the ESCS index increases, reflecting the diversity in academic performance among students with different socio-economic backgrounds.</p>
 </section>
 </section>
 <section id="conclusion" class="level1">
 <h1>Conclusion</h1>
+<p>In summary, the comprehensive analysis of Singapore students’ performance across mathematics, science, and reading has provided several key insights:</p>
+<ul>
+<li><p>Mathematics stands out as a strong subject for Singaporean students, boasting the highest maximum score and a broader range of high achievers. This strength suggests a focus on numerical and scientific reasoning skills.</p></li>
+<li><p>Reading exhibits a wider range of abilities, with a lower minimum score, indicating a need for continued emphasis on literacy to address lower performance and greater variability.</p></li>
+<li><p>The density plot reinforces these findings, highlighting mathematics as a standout subject with a higher peak and greater spread. In contrast, science and reading show similar performance levels but with fewer high scorers.</p></li>
+<li><p>The heatmap analysis reveals that some schools consistently maintain similar scores across subjects, while others exhibit trends of higher science and mathematics scores with comparatively lower reading scores.</p></li>
+<li><p>Gender-based analysis indicates that males tend to perform better in mathematics and science, while females excel in reading. These differences are reflected in the interquartile ranges, indicating greater variability in student performance among males.</p></li>
+<li><p>The Index of Economic, Social, Cultural Status (ESCS) analysis shows a consistent upward trend in scores as ESCS increases, despite the presence of outliers within each bin. The widening interquartile range suggests increasing variability in student performance as the socio-economic status rises.</p></li>
+</ul>
+<p>Further analysis, including confidence intervals, and other statistical testings such as correlation, ANOVA test may be beneficial to assess the statistical significance of these findings.</p>
 
 
 </section>

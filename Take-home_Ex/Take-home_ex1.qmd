@@ -175,7 +175,6 @@ The density plot reinforces the findings from the distribution analysis, showing
 It is also important to examine whether students in different schools exhibit variations in their performance across various subjects, as some schools may excel in teaching certain subjects compared to others. Since the school id has a very large sample, we are using a heatmap to display the significance.
 
 ::: panel-tabset
-
 ### Heatmap
 
 ```{r,heatmap-panel, eval: TRUE, echo=FALSE}
@@ -228,8 +227,8 @@ Furthermore, it's interesting to note that schools achieving high scores in math
 Next, we examine the gender impact on Singapore student's different subject scores, as from what most people typically knows different gender perform differently in certain subjects, so it is important to check that if gender shows significance on the subjects score.
 
 ::: panel-tabset
-
 ### Boxplot
+
 ```{r,boxplot-panel, eval: TRUE, echo=FALSE}
 sg_stu_eda_long$ST004D01T <- factor(sg_stu_eda_long$ST004D01T, levels = c("1", "2"), labels = c("Female", "Male"))
 
@@ -247,6 +246,7 @@ ggplot(sg_stu_eda_long, aes(x = ST004D01T, y = score, fill = subject)) +
 ```
 
 ### Codes
+
 ```{r, eval=FALSE}
 sg_stu_eda_long$ST004D01T <- factor(sg_stu_eda_long$ST004D01T, levels = c("1", "2"), labels = c("Female", "Male"))
 
@@ -276,8 +276,85 @@ Further analysis might be needed: Adding confidence intervals around the mean co
 
 ## 3.5 Index of Economic, Social, Cultural Status Impact on Singapore Student Subjects Score
 
+From the dataset, it is observe that the Index of Economic, Social, Cultural Status has differnt positive and negative values, and it seem that differnt values correspond with different range of subject scores. So, there might be relationship between this two variables, let use some EDA techniques to explore.
 
+First, since the ESCS value as a wide range, we can use bin function <mark>*ntile()*</mark> to divide ESCS values into quantiles.
 
+```{r}
+data_escs <- sg_stu_eda %>%
+  filter(!is.na(ESCS)) %>% # Remove rows with NA in ESCS
+  mutate(ESCS_bin = ntile(ESCS, 8)) # Bin ESCS into 8 bins
 
+# Now, summarize to find the range of ESCS in each bin
+bin_ranges <- data_escs %>%
+  group_by(ESCS_bin) %>%
+  summarise(
+    min_ESCS = min(ESCS, na.rm = TRUE),
+    max_ESCS = max(ESCS, na.rm = TRUE)
+  )
+
+bin_ranges
+
+```
+
+::: panel-tabset
+### Boxplot Subject vs ESCS bins
+
+```{r,boxplot2-panel, eval: TRUE, echo=FALSE}
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_math)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Math Score') +
+  theme_bw()
+```
+
+```{r,boxplot-panel3, eval: TRUE, echo=FALSE}
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_scie)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Science Score') +
+  theme_bw()
+```
+
+```{r,boxplot-panel4, eval: TRUE, echo=FALSE}
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_read)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Reading Score') +
+  theme_bw()
+```
+
+### Codes
+
+```{r, eval=FALSE}
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_math)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Math Score') +
+  theme_bw()
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_scie)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Science Score') +
+  theme_bw()
+ggplot(data_escs, aes(x = factor(ESCS_bin), y = mean_pv_read)) +
+  geom_boxplot() +
+  labs(x = 'ESCS Bin', y = 'Reading Score') +
+  theme_bw()
+```
+:::
+
+From the exploratory data analysis (EDA), it is evident that as the Index of Economic, Social, Cultural Status (ESCS) increases from bin 1 to bin 8, the scores in all three subjects exhibit a consistent upward trend. This observation holds true despite the presence of some outliers within each bin, which can affect the overall sample distribution. Furthermore, it is notable that the interquartile range (IQR) increases progressively as we move from lower ESCS bins to higher ones, indicating a widening spread of scores. This widening IQR suggests a greater degree of variability in scores among students as the ESCS index increases, reflecting the diversity in academic performance among students with different socio-economic backgrounds.
 
 # Conclusion
+
+In summary, the comprehensive analysis of Singapore students' performance across mathematics, science, and reading has provided several key insights:
+
+-   Mathematics stands out as a strong subject for Singaporean students, boasting the highest maximum score and a broader range of high achievers. This strength suggests a focus on numerical and scientific reasoning skills.
+
+-   Reading exhibits a wider range of abilities, with a lower minimum score, indicating a need for continued emphasis on literacy to address lower performance and greater variability.
+
+-   The density plot reinforces these findings, highlighting mathematics as a standout subject with a higher peak and greater spread. In contrast, science and reading show similar performance levels but with fewer high scorers.
+
+-   The heatmap analysis reveals that some schools consistently maintain similar scores across subjects, while others exhibit trends of higher science and mathematics scores with comparatively lower reading scores.
+
+-   Gender-based analysis indicates that males tend to perform better in mathematics and science, while females excel in reading. These differences are reflected in the interquartile ranges, indicating greater variability in student performance among males.
+
+-   The Index of Economic, Social, Cultural Status (ESCS) analysis shows a consistent upward trend in scores as ESCS increases, despite the presence of outliers within each bin. The widening interquartile range suggests increasing variability in student performance as the socio-economic status rises.
+
+Further analysis, including confidence intervals, and other statistical testings such as correlation, ANOVA test may be beneficial to assess the statistical significance of these findings.
