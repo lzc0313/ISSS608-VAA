@@ -12,7 +12,7 @@ output:
 editor: visual
 ---
 
-# 1. Topics cover
+# 1. Topics covered in this exercise
 
 This Hands on exercise will be covering two topics
 
