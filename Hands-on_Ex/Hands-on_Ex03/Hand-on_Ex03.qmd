@@ -16,7 +16,7 @@ editor: visual
 
 This Hands on exercise will be covering two topics
 
--   Programming Interactive Data Visualisation with R (First Part)
+-   Programming Interactive Data Visualization with R (First Part)
 
 -   Programming Animated Statistical Graphics with (Second Part)
 
