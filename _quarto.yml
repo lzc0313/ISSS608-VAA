@@ -13,16 +13,18 @@ website:
             href: "Hands-on_Ex/Hands-on_Ex02/Hand-on_Ex02.html"
           - text: "Hand-on Exercise 3"
             href: "Hands-on_Ex/Hands-on_Ex03/Hand-on_Ex03.html"
+            
       - text: "In-Class Exercise"
         menu:
           - text: "In-Class Exercise 1"
             href: "In-class_Ex/In-class_ex1/In-class_ex1.html"
+            
       - text: "Take-home Exercise"
         menu:
           - text: "Take-home Exercise 1"
-            href: "Take-home_Ex/Take-home_ex1/Take-home_ex1.html"
+            href: "Take-home_Ex/Take-home_ex01/Take-home_ex1.html"
           - text: "Take-home Exercise 2"
-            href: "Take-home_Ex/Take-home_ex2/Take-home_ex2.html"
+            href: "Take-home_Ex/Take-home_ex02/Take-home_ex2.html"
     right:
       - href: index.qmd
         text: Home
