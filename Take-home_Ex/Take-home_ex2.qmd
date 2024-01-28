@@ -1,0 +1,185 @@
+---
+title: "Take Home Exercise 2: DataVis Makeover"
+date: "Jan 26,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  quarto::quarto_html_document:
+    self_contained: true
+editor: visual
+---
+
+For this Data Visualization Makeover exercise, i have choose my classmates Xu Lin's work of his take home exercise 1, and i will try to make improvements on his work so that it can be an better visual analysis.
+
+# **1. Overview:**
+
+## Objective
+
+For this exercise the objective is to look at the distribution of Singapore students' performance in mathematics, reading, and science, and the relationship between these subjects performances with schools, gender and socioeconomic status of the students.
+
+## Methods
+
+For this Analysis, the average score of mathematics, reading, and science is used as benchmark to do the analysis and visualization. and also for schools, gender and socioeconomic status variables.
+
+## Limitations
+
+The mean serves as merely one benchmark and might not be universally applicable due to its sensitivity to extreme values, which can skew the representation of a data set's central tendency. Moreover, our choice of data is informed by subjective interpretation, potentially leading to biased datasets because it reflects our preconceptions and possible exclusion of relevant data points.
+
+# 2 Import R package & Data
+
+## Install R package
+
+Installing necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.
+
+```{r}
+pacman::p_load(ggrepel, patchwork, 
+               ggthemes, hrbrthemes,
+               tidyverse, haven) 
+```
+
+## Import Data
+
+For this exercise, we are only examining the Singapore students. So the data load in the below code chunk only contains
+
+```{r}
+stu_qqq_SG <- readRDS("C:/lzc0313/ISSS608-VAA/In-class_Ex/In-class_ex1/data/stu_qqq_SG.rds")
+```
+
+## Prepare Data
+
+After examing the data, found that the subject scores are named as PV1MATH to PV10MATCH and also same for other two subjects. The below code chunks calculates the average of PV1 to PV10 for all three subject.
+
+```{r}
+stu_qqq_SG_MRS <- stu_qqq_SG %>%
+  mutate(AVEMATH = (PV1MATH + PV2MATH + PV3MATH + PV4MATH + PV5MATH + PV6MATH + PV7MATH + PV8MATH + PV9MATH + PV10MATH ) / 10,
+         AVEREAD = (PV1READ + PV2READ + PV3READ + PV4READ + PV5READ + PV6READ + PV7READ + PV8READ + PV9READ + PV10READ )/ 10,
+         AVESCIE = (PV1SCIE + PV2SCIE + PV3SCIE + PV4SCIE + PV5SCIE + PV6SCIE + PV7SCIE + PV8SCIE + PV9SCIE + PV10SCIE )/ 10)
+```
+
+# Distribution of Three Subjects
+Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms.
+
+::: panel-tabset
+### Distribution 
+```{r distribution-plot, eval=TRUE, echo=FALSE}
+mean_math <- mean(stu_qqq_SG_MRS$AVEMATH, na.rm = TRUE)
+mean_read <- mean(stu_qqq_SG_MRS$AVEREAD, na.rm = TRUE)
+mean_scie <- mean(stu_qqq_SG_MRS$AVESCIE, na.rm = TRUE)
+
+p1 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVEMATH )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_math, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_math, y = Inf, label = paste("Mean:", round(mean_math, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("MATHEMATICS") 
+
+p2 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVEREAD )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_read, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_read, y = Inf, label = paste("Mean:", round(mean_read, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("READING") 
+
+p3 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVESCIE )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_scie, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_scie, y = Inf, label = paste("Mean:", round(mean_scie, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("SCIENCE") 
+
+p4 <- ggplot(stu_qqq_SG_MRS) +
+  geom_density(aes(x = AVEMATH, fill = "Mathematics"), alpha = 0.5) +
+  geom_density(aes(x = AVEREAD, fill = "Reading"), alpha = 0.5) +
+  geom_density(aes(x = AVESCIE, fill = "Science"), alpha = 0.5) +
+  geom_vline(xintercept = mean_math, color = "red", linetype = "dashed") +
+  geom_vline(xintercept = mean_read, color = "green", linetype = "dashed") +
+  geom_vline(xintercept = mean_scie, color = "blue", linetype = "dashed") +
+  annotate("text", x = mean_math, y = 0, label = paste("Mean Math:", round(mean_math, 2)), hjust = 0, color = "red", size = 3, angle = 90, vjust = -0.5) +
+  annotate("text", x = mean_read, y = 0, label = paste("Mean Read:", round(mean_read, 2)), hjust = 0, color = "green", size = 3, angle = 90, vjust = -0.5) +
+  annotate("text", x = mean_scie, y = 0, label = paste("Mean Scie:", round(mean_scie, 2)), hjust = 0, color = "blue", size = 3, angle = 90, vjust = -0.5) +
+  ggtitle("Density Plot of Scores by Subject") +
+  xlab("Scores") +
+  ylab("Density") +
+  scale_fill_manual(values = c("Mathematics" = "red", "Reading" = "green", "Science" = "blue")) +
+  theme_minimal()
+
+
+p1
+p2
+p3
+p4
+```
+
+
+### codes
+```{r,eval=FALSE}
+mean_math <- mean(stu_qqq_SG_MRS$AVEMATH, na.rm = TRUE)
+mean_read <- mean(stu_qqq_SG_MRS$AVEREAD, na.rm = TRUE)
+mean_scie <- mean(stu_qqq_SG_MRS$AVESCIE, na.rm = TRUE)
+
+p1 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVEMATH )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_math, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_math, y = Inf, label = paste("Mean:", round(mean_math, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("MATHEMATICS") 
+
+p2 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVEREAD )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_read, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_read, y = Inf, label = paste("Mean:", round(mean_read, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("READING") 
+
+p3 <- ggplot(data=stu_qqq_SG_MRS, 
+             aes(x = AVESCIE )) +
+  geom_histogram(bins=20, 
+                 boundary = 100,
+                 color="grey25", 
+                 fill="grey90") +
+  geom_vline(xintercept = mean_scie, color = "black", linetype = "dashed")+
+  annotate("text", x =mean_scie, y = Inf, label = paste("Mean:", round(mean_scie, 2)), vjust = 1, hjust = 1.5, color = "red") +
+  theme_gray() +
+  ggtitle("SCIENCE") 
+
+p4 <- ggplot(stu_qqq_SG_MRS) +
+  geom_density(aes(x = AVEMATH, fill = "Mathematics"), alpha = 0.5) +
+  geom_density(aes(x = AVEREAD, fill = "Reading"), alpha = 0.5) +
+  geom_density(aes(x = AVESCIE, fill = "Science"), alpha = 0.5) +
+  geom_vline(xintercept = mean_math, color = "red", linetype = "dashed") +
+  geom_vline(xintercept = mean_read, color = "green", linetype = "dashed") +
+  geom_vline(xintercept = mean_scie, color = "blue", linetype = "dashed") +
+  annotate("text", x = mean_math, y = 0, label = paste("Mean Math:", round(mean_math, 2)), hjust = 0, color = "red", size = 3, angle = 90, vjust = -0.5) +
+  annotate("text", x = mean_read, y = 0, label = paste("Mean Read:", round(mean_read, 2)), hjust = 0, color = "green", size = 3, angle = 90, vjust = -0.5) +
+  annotate("text", x = mean_scie, y = 0, label = paste("Mean Scie:", round(mean_scie, 2)), hjust = 0, color = "blue", size = 3, angle = 90, vjust = -0.5) +
+  ggtitle("Density Plot of Scores by Subject") +
+  xlab("Scores") +
+  ylab("Density") +
+  scale_fill_manual(values = c("Mathematics" = "red", "Reading" = "green", "Science" = "blue")) +
+  theme_minimal()
+
+```
+::: 

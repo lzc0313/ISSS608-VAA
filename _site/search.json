@@ -264,5 +264,54 @@
     "title": "ISSS608-VAA",
     "section": "",
     "text": "Welcome to ISSS608 Visual Analytics and Applications. In this website, you will find my coursework prepared for this course."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html",
+    "href": "Take-home_Ex/Take-home_ex2.html",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "",
+    "text": "For this Data Visualization Makeover exercise, i have choose my classmates Xu Lin’s work of his take home exercise 1, and i will try to make improvements on his work so that it can be an better visual analysis."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#objective",
+    "href": "Take-home_Ex/Take-home_ex2.html#objective",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Objective",
+    "text": "Objective\nFor this exercise the objective is to look at the distribution of Singapore students’ performance in mathematics, reading, and science, and the relationship between these subjects performances with schools, gender and socioeconomic status of the students."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#methods",
+    "href": "Take-home_Ex/Take-home_ex2.html#methods",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Methods",
+    "text": "Methods\nFor this Analysis, the average score of mathematics, reading, and science is used as benchmark to do the analysis and visualization. and also for schools, gender and socioeconomic status variables."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#limitations",
+    "href": "Take-home_Ex/Take-home_ex2.html#limitations",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Limitations",
+    "text": "Limitations\nThe mean serves as merely one benchmark and might not be universally applicable due to its sensitivity to extreme values, which can skew the representation of a data set’s central tendency. Moreover, our choice of data is informed by subjective interpretation, potentially leading to biased datasets because it reflects our preconceptions and possible exclusion of relevant data points."
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#install-r-package",
+    "href": "Take-home_Ex/Take-home_ex2.html#install-r-package",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Install R package",
+    "text": "Install R package\nInstalling necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.\n\npacman::p_load(ggrepel, patchwork, \n               ggthemes, hrbrthemes,\n               tidyverse, haven)"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#import-data",
+    "href": "Take-home_Ex/Take-home_ex2.html#import-data",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Import Data",
+    "text": "Import Data\nFor this exercise, we are only examining the Singapore students. So the data load in the below code chunk only contains\n\nstu_qqq_SG &lt;- readRDS(\"C:/lzc0313/ISSS608-VAA/In-class_Ex/In-class_ex1/data/stu_qqq_SG.rds\")"
+  },
+  {
+    "objectID": "Take-home_Ex/Take-home_ex2.html#prepare-data",
+    "href": "Take-home_Ex/Take-home_ex2.html#prepare-data",
+    "title": "Take Home Exercise 2: DataVis Makeover",
+    "section": "Prepare Data",
+    "text": "Prepare Data\nAfter examing the data, found that the subject scores are named as PV1MATH to PV10MATCH and also same for other two subjects. The below code chunks calculates the average of PV1 to PV10 for all three subject.\n\nstu_qqq_SG_MRS &lt;- stu_qqq_SG %&gt;%\n  mutate(AVEMATH = (PV1MATH + PV2MATH + PV3MATH + PV4MATH + PV5MATH + PV6MATH + PV7MATH + PV8MATH + PV9MATH + PV10MATH ) / 10,\n         AVEREAD = (PV1READ + PV2READ + PV3READ + PV4READ + PV5READ + PV6READ + PV7READ + PV8READ + PV9READ + PV10READ )/ 10,\n         AVESCIE = (PV1SCIE + PV2SCIE + PV3SCIE + PV4SCIE + PV5SCIE + PV6SCIE + PV7SCIE + PV8SCIE + PV9SCIE + PV10SCIE )/ 10)"
   }
 ]
