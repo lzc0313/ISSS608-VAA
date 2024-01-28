@@ -60,10 +60,12 @@ stu_qqq_SG_MRS <- stu_qqq_SG %>%
 ```
 
 # Distribution of Three Subjects
+
 Before doing any further analysis, it is always good to look at the distribution of the data, so we can look at the distribution of the three subjects using histograms.
 
 ::: panel-tabset
-### Distribution 
+### Distribution
+
 ```{r distribution-plot, eval=TRUE, echo=FALSE}
 mean_math <- mean(stu_qqq_SG_MRS$AVEMATH, na.rm = TRUE)
 mean_read <- mean(stu_qqq_SG_MRS$AVEREAD, na.rm = TRUE)
@@ -125,8 +127,8 @@ p3
 p4
 ```
 
-
 ### codes
+
 ```{r,eval=FALSE}
 mean_math <- mean(stu_qqq_SG_MRS$AVEMATH, na.rm = TRUE)
 mean_read <- mean(stu_qqq_SG_MRS$AVEREAD, na.rm = TRUE)
@@ -182,15 +184,17 @@ p4 <- ggplot(stu_qqq_SG_MRS) +
   theme_minimal()
 
 ```
-::: 
+:::
+
 The mathematics, reading, and science scores conform to a normal distribution. Since we are not analyzing data from other countries, there is no basis for comparison, which means we can only say that this is a set of normal data with no apparent anomalies. And from the graphs, we could see that for students performance in three subjects,math has the greatest average mean among three courses, and the next up higher is science. Reading the lowest.
 
 # Gender Relationship with Subject Scores
+
 In this section the relationship of gender with different subjects will be analysed.
 
 ::: panel-tabset
+### Boxplot
 
-### Boxplot  
 ```{r boxplot, eval=TRUE, echo=FALSE}
 stu_qqq_SG_MRS_filtered <- stu_qqq_SG_MRS %>%
   filter(ST004D01T == 1 | ST004D01T == 2)
@@ -232,7 +236,9 @@ p6 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVESCIE, x = factor(ST004D0
 
 p4+p5+p6
 ```
+
 ### codes
+
 ```{r,eval=FALSE}
 stu_qqq_SG_MRS_filtered <- stu_qqq_SG_MRS %>%
   filter(ST004D01T == 1 | ST004D01T == 2)
@@ -277,10 +283,11 @@ The boxplot reveals only minor differences between females and males. Males perf
 
 # Socioeconomic Status Relationship with Subject Scores
 
-Next take a look at the Socioeconomic status relationship with different subject scores. 
+Next take a look at the Socioeconomic status relationship with different subject scores.
 
 ::: panel-tabset
-### Scatter plot  
+### Scatter plot
+
 ```{r scatterp, eval=TRUE, echo=FALSE}
 cor1 <- round(cor(stu_qqq_SG_MRS$AVEMATH, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
 cor2 <- round(cor(stu_qqq_SG_MRS$AVESCIE, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
@@ -312,7 +319,9 @@ p7
 p8
 p9
 ```
+
 ### codes
+
 ```{r,eval=FALSE}
 cor1 <- round(cor(stu_qqq_SG_MRS$AVEMATH, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
 cor2 <- round(cor(stu_qqq_SG_MRS$AVESCIE, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
@@ -345,10 +354,12 @@ if (!is.na(cor1) && !is.na(cor2) && !is.na(cor3)) {
 The scatter plots demonstrate a dispersion across all socioeconomic levels, yet they reveal a consistent trend: the correlations between socioeconomic status and academic performance in all subjects are approximately 0.44. This indicates a modest yet positive relationship. Consequently, it can be inferred that students from higher socioeconomic backgrounds tend to achieve higher scores.
 
 # Schools Relationship with Subject Scores
+
 Lastly, we analyse the relationship between different schools in singapore with subject scores.
 
 ::: panel-tabset
-### Scatter plot  
+### Scatter plot
+
 ```{r boxp2, eval=TRUE, echo=FALSE}
 school_averages <- stu_qqq_SG_MRS %>%
   group_by(CNTSCHID) %>%
@@ -396,7 +407,9 @@ p10 <- ggplot(school_averages_long, aes(x = Subject, y = Average_Score, fill = S
 
 p10
 ```
+
 ### codes
+
 ```{r,eval=FALSE}
 school_averages <- stu_qqq_SG_MRS %>%
   group_by(CNTSCHID) %>%
