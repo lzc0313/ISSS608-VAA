@@ -37,7 +37,7 @@ Installing necessary R packages that will be needed for this exercise. To load t
 ```{r}
 pacman::p_load(ggrepel, patchwork, 
                ggthemes, hrbrthemes,
-               tidyverse, haven) 
+               tidyverse, haven, ggplot2, dplyr) 
 ```
 
 ## Import Data
@@ -183,3 +183,106 @@ p4 <- ggplot(stu_qqq_SG_MRS) +
 
 ```
 ::: 
+The mathematics, reading, and science scores conform to a normal distribution. Since we are not analyzing data from other countries, there is no basis for comparison, which means we can only say that this is a set of normal data with no apparent anomalies. And from the graphs, we could see that for students performance in three subjects,math has the greatest average mean among three courses, and the next up higher is science. Reading the lowest.
+
+# Gender Relationship with Subject Scores
+In this section the relationship of gender with different subjects will be analysed.
+
+::: panel-tabset
+
+### Boxplot  
+```{r boxplot, eval=TRUE, echo=FALSE}
+stu_qqq_SG_MRS_filtered <- stu_qqq_SG_MRS %>%
+  filter(ST004D01T == 1 | ST004D01T == 2)
+
+mean_label <- function(x) {
+  return(as.character(round(mean(x, na.rm = TRUE), 2)))
+}
+
+formatted_mean <- function(x) {
+  sprintf("%.2f", mean(x, na.rm = TRUE))
+}
+
+offset <- 5  # Adjust this value as needed for your data
+
+p4 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVEMATH, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVEMATH)), y = mean_math + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Math") +
+  guides(fill=FALSE) # This removes the legend for fill
+
+p5 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVEREAD, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVEREAD)), y = mean_read + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Read") +
+  guides(fill=FALSE) # This removes the legend for fill
+
+p6 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVESCIE, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVESCIE)), y = mean_scie + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Scie") +
+  guides(fill=FALSE) # This removes the legend for fill
+
+
+p4+p5+p6
+```
+### codes
+```{r,eval=FALSE}
+stu_qqq_SG_MRS_filtered <- stu_qqq_SG_MRS %>%
+  filter(ST004D01T == 1 | ST004D01T == 2)
+
+mean_label <- function(x) {
+  return(as.character(round(mean(x, na.rm = TRUE), 2)))
+}
+
+formatted_mean <- function(x) {
+  sprintf("%.2f", mean(x, na.rm = TRUE))
+}
+
+offset <- 5  # Adjust this value as needed for your data
+
+p4 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVEMATH, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVEMATH)), y = mean_math + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Math") +
+  guides(fill=FALSE) # This removes the legend for fill
+
+p5 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVEREAD, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVEREAD)), y = mean_read + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Read") +
+  guides(fill=FALSE) # This removes the legend for fill
+
+p6 <- ggplot(data = stu_qqq_SG_MRS_filtered, aes(y = AVESCIE, x = factor(ST004D01T), fill = factor(ST004D01T))) +
+  geom_boxplot() +
+  scale_x_discrete(labels = c("Female", "Male")) +
+  stat_summary(geom = "point", fun = mean, color = "red", size = 3) +
+  geom_text(aes(label = formatted_mean(AVESCIE)), y = mean_scie + offset, color = "black", vjust = -1.5, size = 3) +
+  ggtitle("F vs M in Scie") +
+  guides(fill=FALSE) # This removes the legend for fill
+```
+:::
+
+The boxplot reveals only minor differences between females and males. Males perform slightly better than females in mathematics, while females outperform males in reading. In science, the mean scores are nearly identical.
+
+# Socioeconomic Status Relationship with Subject Scores
+
+
+
+
+
+
+
+
+
+# Schools Relationship with Subject Scores
