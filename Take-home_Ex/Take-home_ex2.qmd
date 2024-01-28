@@ -37,7 +37,7 @@ Installing necessary R packages that will be needed for this exercise. To load t
 ```{r}
 pacman::p_load(ggrepel, patchwork, 
                ggthemes, hrbrthemes,
-               tidyverse, haven, ggplot2, dplyr) 
+               tidyverse, haven, ggplot2, dplyr,ggstatsplot,tidyr) 
 ```
 
 ## Import Data
@@ -277,12 +277,172 @@ The boxplot reveals only minor differences between females and males. Males perf
 
 # Socioeconomic Status Relationship with Subject Scores
 
+Next take a look at the Socioeconomic status relationship with different subject scores. 
 
+::: panel-tabset
+### Scatter plot  
+```{r scatterp, eval=TRUE, echo=FALSE}
+cor1 <- round(cor(stu_qqq_SG_MRS$AVEMATH, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
+cor2 <- round(cor(stu_qqq_SG_MRS$AVESCIE, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
+cor3 <- round(cor(stu_qqq_SG_MRS$AVEREAD, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
 
+if (!is.na(cor1) && !is.na(cor2) && !is.na(cor3)) {
+  p7 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVEMATH, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) + 
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor1), color = 'blue') +
+          theme_minimal()
 
+  p8 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVESCIE, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) +
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor2), color = 'blue') + 
+          theme_minimal()
 
+  p9 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVEREAD, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) + 
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor3), color = 'blue') +
+          theme_minimal()
+} else {
+  cat("Correlation could not be calculated due to insufficient complete cases.")
+}
 
+p7
+p8
+p9
+```
+### codes
+```{r,eval=FALSE}
+cor1 <- round(cor(stu_qqq_SG_MRS$AVEMATH, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
+cor2 <- round(cor(stu_qqq_SG_MRS$AVESCIE, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
+cor3 <- round(cor(stu_qqq_SG_MRS$AVEREAD, stu_qqq_SG_MRS$ESCS, use = "complete.obs"), 2)
 
+if (!is.na(cor1) && !is.na(cor2) && !is.na(cor3)) {
+  p7 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVEMATH, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) + 
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor1), color = 'blue') +
+          theme_minimal()
 
+  p8 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVESCIE, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) +
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor2), color = 'blue') + 
+          theme_minimal()
+
+  p9 <- ggplot(data = stu_qqq_SG_MRS, aes(y = AVEREAD, x = ESCS)) +
+          geom_point(size = 0.1) +
+          geom_smooth(method = lm) + 
+          annotate("text", x = 2.5, y = 600, label = paste0("r = ", cor3), color = 'blue') +
+          theme_minimal()
+} else {
+  cat("Correlation could not be calculated due to insufficient complete cases.")
+}
+```
+:::
+
+The scatter plots demonstrate a dispersion across all socioeconomic levels, yet they reveal a consistent trend: the correlations between socioeconomic status and academic performance in all subjects are approximately 0.44. This indicates a modest yet positive relationship. Consequently, it can be inferred that students from higher socioeconomic backgrounds tend to achieve higher scores.
 
 # Schools Relationship with Subject Scores
+Lastly, we analyse the relationship between different schools in singapore with subject scores.
+
+::: panel-tabset
+### Scatter plot  
+```{r boxp2, eval=TRUE, echo=FALSE}
+school_averages <- stu_qqq_SG_MRS %>%
+  group_by(CNTSCHID) %>%
+  summarise(
+    Average_AVEMATH = mean(AVEMATH, na.rm = TRUE),
+    Average_AVEREAD = mean(AVEREAD, na.rm = TRUE),
+    Average_AVECIE = mean(AVESCIE, na.rm = TRUE)
+  )
+
+school_averages_long <- school_averages %>%
+  pivot_longer(
+    cols = starts_with("Average_"),
+    names_to = "Subject",
+    values_to = "Average_Score"
+  )
+
+outliers_threshold <- function(data, var) {
+  Q1 <- quantile(data[[var]], 0.25, na.rm = TRUE)
+  Q3 <- quantile(data[[var]], 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  lower <- Q1 - 1.5 * IQR
+  upper <- Q3 + 1.5 * IQR
+  data %>% filter((data[[var]] < lower) | (data[[var]] > upper))
+}
+
+outliers_data <- school_averages_long %>%
+  group_by(Subject) %>%
+  do(outliers_threshold(., "Average_Score"))
+
+p10 <- ggplot(school_averages_long, aes(x = Subject, y = Average_Score, fill = Subject)) +
+  geom_boxplot() +
+  geom_point(aes(color = Subject), position = position_jitter(width = 0.2), alpha = 0.5) +
+  labs(title = "Boxplot of Average Scores by Subject in Schools", x = "Subject", y = "Average Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text_repel(
+    data = outliers_data,
+    aes(label = CNTSCHID),
+    box.padding = 0.35,
+    point.padding = 0.5,
+    segment.color = "grey50",
+    size = 3,
+    max.overlaps = 10  
+  ) +
+  guides(fill = "none") 
+
+p10
+```
+### codes
+```{r,eval=FALSE}
+school_averages <- stu_qqq_SG_MRS %>%
+  group_by(CNTSCHID) %>%
+  summarise(
+    Average_AVEMATH = mean(AVEMATH, na.rm = TRUE),
+    Average_AVEREAD = mean(AVEREAD, na.rm = TRUE),
+    Average_AVECIE = mean(AVESCIE, na.rm = TRUE)
+  )
+
+school_averages_long <- school_averages %>%
+  pivot_longer(
+    cols = starts_with("Average_"),
+    names_to = "Subject",
+    values_to = "Average_Score"
+  )
+
+outliers_threshold <- function(data, var) {
+  Q1 <- quantile(data[[var]], 0.25, na.rm = TRUE)
+  Q3 <- quantile(data[[var]], 0.75, na.rm = TRUE)
+  IQR <- Q3 - Q1
+  lower <- Q1 - 1.5 * IQR
+  upper <- Q3 + 1.5 * IQR
+  data %>% filter((data[[var]] < lower) | (data[[var]] > upper))
+}
+
+outliers_data <- school_averages_long %>%
+  group_by(Subject) %>%
+  do(outliers_threshold(., "Average_Score"))
+
+p10 <- ggplot(school_averages_long, aes(x = Subject, y = Average_Score, fill = Subject)) +
+  geom_boxplot() +
+  geom_point(aes(color = Subject), position = position_jitter(width = 0.2), alpha = 0.5) +
+  labs(title = "Boxplot of Average Scores by Subject in Schools", x = "Subject", y = "Average Score") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  geom_text_repel(
+    data = outliers_data,
+    aes(label = CNTSCHID),
+    box.padding = 0.35,
+    point.padding = 0.5,
+    segment.color = "grey50",
+    size = 3,
+    max.overlaps = 10  
+  ) +
+  guides(fill = "none") 
+p10
+```
+:::
+
+The boxplot visualizes the distribution of average scores in Science, Mathematics, and Reading across various schools, revealing a similar median score for each subject but with Science showing a greater variability in performance. Outliers marked with school IDs suggest significant deviations from the norm, with some schools achieving notably higher or lower scores, potentially indicating disparities in educational quality, resource allocation, or socioeconomic factors affecting student performance. Identifying and understanding the underlying reasons for these outliers could be key to informing educational improvements and policies.

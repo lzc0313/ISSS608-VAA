@@ -298,7 +298,7 @@
     "href": "Take-home_Ex/Take-home_ex2.html#install-r-package",
     "title": "Take Home Exercise 2: DataVis Makeover",
     "section": "Install R package",
-    "text": "Install R package\nInstalling necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.\n\npacman::p_load(ggrepel, patchwork, \n               ggthemes, hrbrthemes,\n               tidyverse, haven, ggplot2, dplyr)"
+    "text": "Install R package\nInstalling necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.\n\npacman::p_load(ggrepel, patchwork, \n               ggthemes, hrbrthemes,\n               tidyverse, haven, ggplot2, dplyr,ggstatsplot,tidyr) \n\npackage 'vctrs' successfully unpacked and MD5 sums checked\npackage 'dplyr' successfully unpacked and MD5 sums checked\npackage 'ggstatsplot' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\Li Zhongchao\\AppData\\Local\\Temp\\RtmpMpGgTw\\downloaded_packages"
   },
   {
     "objectID": "Take-home_Ex/Take-home_ex2.html#import-data",
