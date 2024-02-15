@@ -84,6 +84,16 @@ ggplot(exam,
   theme_ridges()
 ```
 
+::: callout-note
+## What can see from the plot?
+
+1.  3A,3B,3D tend to follow a normal distribution
+
+2.  lower bond of 3A is slightly lower compare to students in 3B, but at the higher bond 3A students perform much better compare to 3B students.
+
+3.  3B students tend to be perform similarly well.
+:::
+
 ### **1.3.2 Varying fill colors along the x axis**
 
 Sometimes we would like to have the area under a ridgeline not filled with a single solid color but rather with colors that vary in some form along the x axis. This effect can be achieved by using either [`geom_ridgeline_gradient()`](https://wilkelab.org/ggridges/reference/geom_ridgeline_gradient.html) or [`geom_density_ridges_gradient()`](https://wilkelab.org/ggridges/reference/geom_ridgeline_gradient.html). Both geoms work just like `geom_ridgeline()` and `geom_density_ridges()`, except that they allow for varying fill colors. However, they do not allow for alpha transparency in the fill. For technical reasons, we can have changing fill colors or transparency but not both.

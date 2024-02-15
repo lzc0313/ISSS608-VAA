@@ -1,0 +1,23 @@
+---
+title: "Take Home Exercise 3: Be Weatherwise or Otherwise"
+date: "Feb 14,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+output:
+  quarto::quarto_html_document:
+    self_contained: true
+editor: visual
+---
+
+# **1. Overview:**
+
+According to an office report as shown in the infographic below,
+
+-   Daily mean temperature are projected to increase by 1.4 to 4.6, and
+
+-   The contrast between the wet months (November to January) and dry month (February and June to September) is likely to be more pronounced.
+
+![As a visual analytics greenhorn, you are keen to apply newly acquired visual interactivity and visualising uncertainty methods to validate the claims presented above.](images/clipboard-1526644678.png)
