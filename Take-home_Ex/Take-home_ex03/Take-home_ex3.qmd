@@ -21,3 +21,54 @@ According to an office report as shown in the infographic below,
 -   The contrast between the wet months (November to January) and dry month (February and June to September) is likely to be more pronounced.
 
 ![As a visual analytics greenhorn, you are keen to apply newly acquired visual interactivity and visualising uncertainty methods to validate the claims presented above.](images/clipboard-1526644678.png)
+
+## 1.1 Objective
+
+In this take-home exercise, you are required to:
+
+-   Select a weather station and download [historical daily temperature or rainfall data](http://www.weather.gov.sg/climate-historical-daily/) from [Meteorological Service Singapore](http://www.weather.gov.sg/home/) website,
+
+-   Select either daily temperature or rainfall records of a month of the year 1983, 1993, 2003, 2013 and 2023 and create an analytics-driven data visualisation,
+
+-   Apply appropriate interactive techniques to enhance the user experience in data discovery and/or visual story-telling.
+
+From the above requirements for this exercise, i have selected the Changi weather station, and downloaded the records of December of the year 1983, 1993, 2003, 2013 and 2023.
+
+## **1.2 Getting Started**
+
+### **1.2.1 Installing and loading the packages**
+
+The code chunk below are the R packages used in this exercise:
+
+```{r}
+pacman::p_load(readxl, ggiraph, plotly, 
+               patchwork, DT, tidyverse, gifski, gapminder, gganimate, ggplot2) 
+```
+
+### **1.2.2 Data import**
+
+Based on the objective, the temperature records from Changi weather station is used from [(link)](https://www.weather.gov.sg/climate-historical-daily/), from Dec of the year 1983, 1993, 2003, 2013 and 2023.
+
+```{r}
+Dec_temp <- c("data/DAILYDATA_S24_198312.csv", "data/DAILYDATA_S24_199312.csv", 
+                "data/DAILYDATA_S24_200312.csv", "data/DAILYDATA_S24_201312.csv", 
+                "data/DAILYDATA_S24_202312.csv")
+
+list_of_temp <- lapply(Dec_temp, read.csv)
+
+temp_combined <- do.call(rbind, list_of_temp)
+```
+
+After examine the *list_of_temp* data, for the purpose of the exercise the five data sets are combined and named *temp_combined* before analyzing.
+
+```{r}
+ggplot(temp_combined, aes(x = Day, y = Mean.Temperature)) +
+  geom_point(alpha = 0.7) +
+  scale_size(range = c(2, 12)) +
+  labs(title = 'Year: {frame_time}',
+       x = 'Day',
+       y = 'Mean Temperature (°C)') +
+  transition_time(Year) +
+  ease_aes('linear')
+
+```
