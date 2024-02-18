@@ -42,7 +42,7 @@ The code chunk below are the R packages used in this exercise:
 
 ```{r}
 pacman::p_load(readxl, ggiraph, plotly, 
-               patchwork, DT, tidyverse, gifski, gapminder, gganimate, ggplot2) 
+               patchwork, DT, tidyverse, gifski, gapminder, gganimate, ggplot2,lubridate, transformr) 
 ```
 
 ### **1.2.2 Data import**
@@ -61,14 +61,42 @@ temp_combined <- do.call(rbind, list_of_temp)
 
 After examine the *list_of_temp* data, for the purpose of the exercise the five data sets are combined and named *temp_combined* before analyzing.
 
-```{r}
-ggplot(temp_combined, aes(x = Day, y = Mean.Temperature)) +
-  geom_point(alpha = 0.7) +
-  scale_size(range = c(2, 12)) +
-  labs(title = 'Year: {frame_time}',
-       x = 'Day',
-       y = 'Mean Temperature (°C)') +
-  transition_time(Year) +
-  ease_aes('linear')
+# 2. Interactive visualizations to Discover Temperature Change
 
+Next is to analyse on the change of daily temperature for Singapore over the half decades, as the data is used is only for December, so we assume that December can represents the temperature change for Singapore.
+
+The below code chunk plots the interactive visual for user to discover the temperature change:
+
+```{r}
+temp_combined$Date <- as.Date(with(temp_combined, paste(Year, Month, Day, sep="-")), "%Y-%m-%d")
+
+gg <- ggplot(temp_combined, aes(x = Day)) +
+  geom_line(aes(y = Mean.Temperature, color = as.factor(Year), linetype = "Mean")) +
+  geom_line(aes(y = Maximum.Temperature, color = as.factor(Year), linetype = "Maximum")) +
+  geom_line(aes(y = Minimum.Temperature, color = as.factor(Year), linetype = "Minimum")) +
+  scale_color_manual(values = c("1983" = "black", "1993" = "blue", "2003" = "green", "2013" = "orange", "2023" = "red")) +
+  scale_linetype_manual(values = c("Mean" = "solid", "Maximum" = "dashed", "Minimum" = "dotted")) +
+  labs(title = 'Daily Temperatures at Changi Station for December', x = 'Day of December', y = 'Temperature (°C)', color = "Year", linetype = "Temperature Type") +
+  theme_minimal() +
+  theme(legend.title = element_blank())
+
+ggplotly(gg, tooltip = c("text", "y"))
 ```
+
+The user can hover over the graph to see the changes on the numbers for the years, by selecting the different values for mean maximum, and minimum user can have a clear view of the trend of temperature.
+
+-   Overall Mean temperature for Singapore for 2023 is the highest over 30 days and for year 1983 is the lowest.
+
+-   For maximum temperature 2023 also have the average highest temperature, but the peak of the highest temperature happen in 2013 which is 33.7 Degree Celsius
+
+-   For the Minimum temperature, 2023 shows that it is still the highest amount other 4 years, and for 2013 there is also the peak for the lowest temperature of 21.2 Degree Celsius.
+
+    From the above information discovered, it is clearly that the temperature for Singapore is gradually increasing over the years.
+
+::: callout-important
+**Important**
+
+-   It is important that to use multiple month in comparison, as for Singapore there are some months with rainy weather, some months are dry weather.
+
+-   For year 2013 December it has both the highest temperature and lowest temperature appears, indicating that maybe the weather is uncommon, need more research to discover what happen during that period.
+:::
