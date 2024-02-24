@@ -1,0 +1,17 @@
+{
+  "hash": "233017ea01a52a30f4c414463df8dca3",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"In class Exercise 6 Time on the Horizon\"\ndate: \"Feb 24,2024\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n  message: false\noutput:\n  quarto::quarto_html_document:\n    self_contained: true\neditor: visual\nAuther: Li Zhongchao\n---\n\n\n## **1. Getting started**\n\nBefore getting start, make sure that **ggHoriPlot** has been included in the `pacman::p_load(...)` statement above.\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(ggHoriPlot, ggthemes, tidyverse)\n```\n:::\n\n\n### **1.1 Step 1: Data Import**\n\nFor the purpose of this hands-on exercise, [Average Retail Prices Of Selected Consumer Items](https://tablebuilder.singstat.gov.sg/table/TS/M212891) will be used.\n\nUse the code chunk below to import the AVERP.csv file into R environment.\n\n\n::: {.cell}\n\n```{.r .cell-code}\naverp <- read_csv(\"data/AVERP.csv\") %>%   \n  mutate(`Date` = dmy(`Date`))\n```\n:::\n\n\n**Thing to learn from the code chunk above.**\n\n-   By default, read_csv will import data in Date field as Character data type. [`dmy()`](https://lubridate.tidyverse.org/reference/ymd.html) of [**lubridate**](https://lubridate.tidyverse.org/) package to palse the Date field into appropriate Date data type in R.\n\n::: callout-tip\n**Thing to learn from the code chunk above.**\n\n-   By default, read_csv will import data in Date field as Character data type. [`dmy()`](https://lubridate.tidyverse.org/reference/ymd.html) of [**lubridate**](https://lubridate.tidyverse.org/) package to palse the Date field into appropriate Date data type in R.\n:::\n\n### **1.2 Step 2: Plotting the horizon graph**\n\nNext, the code chunk below will be used to plot the horizon graph.\n\n\n::: {.cell}\n\n```{.r .cell-code}\naverp %>% \n  filter(Date >= \"2018-01-01\") %>%\n  ggplot() +\n  geom_horizon(aes(x = Date, y=Values), \n               origin = \"midpoint\", \n               horizonscale = 6)+\n  facet_grid(`Consumer Items`~.) +\n    theme_few() +\n  scale_fill_hcl(palette = 'RdBu') +   #diverging color red and blue.\n  theme(panel.spacing.y=unit(0, \"lines\"), strip.text.y = element_text(\n    size = 5, angle = 0, hjust = 0),\n    legend.position = 'none',\n    axis.text.y = element_blank(),\n    axis.text.x = element_text(size=7),\n    axis.title.y = element_blank(),\n    axis.title.x = element_blank(),\n    axis.ticks.y = element_blank(),\n    panel.border = element_blank()\n    ) +\n    scale_x_date(expand=c(0,0), date_breaks = \"3 month\", date_labels = \"%b%y\") +\n  ggtitle('Average Retail Prices of Selected Consumer Items (Jan 2018 to Dec 2022)')\n```\n\n::: {.cell-output-display}\n![](inclass_ex6_files/figure-html/unnamed-chunk-3-1.png){width=1152}\n:::\n:::\n\n\nattacks \\<- attacks %\\>%\n\nmutate(wday = lubridate::wday(timestamp,\n\nlabel =True\n\nabbr= True,),\n\nhour = lubridate::hour(timestamp))\n\nthe code chunk above avoid to change date format.\n",
+    "supporting": [
+      "inclass_ex6_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

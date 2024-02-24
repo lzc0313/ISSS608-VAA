@@ -1,0 +1,87 @@
+---
+title: "In class Exercise 6 Time on the Horizon"
+date: "Feb 24,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+  message: false
+output:
+  quarto::quarto_html_document:
+    self_contained: true
+editor: visual
+Auther: Li Zhongchao
+---
+
+## **1. Getting started**
+
+Before getting start, make sure that **ggHoriPlot** has been included in the `pacman::p_load(...)` statement above.
+
+```{r}
+pacman::p_load(ggHoriPlot, ggthemes, tidyverse)
+```
+
+### **1.1 Step 1: Data Import**
+
+For the purpose of this hands-on exercise, [Average Retail Prices Of Selected Consumer Items](https://tablebuilder.singstat.gov.sg/table/TS/M212891) will be used.
+
+Use the code chunk below to import the AVERP.csv file into R environment.
+
+```{r}
+averp <- read_csv("data/AVERP.csv") %>%   
+  mutate(`Date` = dmy(`Date`))
+```
+
+**Thing to learn from the code chunk above.**
+
+-   By default, read_csv will import data in Date field as Character data type. [`dmy()`](https://lubridate.tidyverse.org/reference/ymd.html) of [**lubridate**](https://lubridate.tidyverse.org/) package to palse the Date field into appropriate Date data type in R.
+
+::: callout-tip
+**Thing to learn from the code chunk above.**
+
+-   By default, read_csv will import data in Date field as Character data type. [`dmy()`](https://lubridate.tidyverse.org/reference/ymd.html) of [**lubridate**](https://lubridate.tidyverse.org/) package to palse the Date field into appropriate Date data type in R.
+:::
+
+### **1.2 Step 2: Plotting the horizon graph**
+
+Next, the code chunk below will be used to plot the horizon graph.
+
+```{r}
+#| fig-width: 12
+#| fig-height: 10
+averp %>% 
+  filter(Date >= "2018-01-01") %>%
+  ggplot() +
+  geom_horizon(aes(x = Date, y=Values), 
+               origin = "midpoint", 
+               horizonscale = 6)+
+  facet_grid(`Consumer Items`~.) +
+    theme_few() +
+  scale_fill_hcl(palette = 'RdBu') +   #diverging color red and blue.
+  theme(panel.spacing.y=unit(0, "lines"), strip.text.y = element_text(
+    size = 5, angle = 0, hjust = 0),
+    legend.position = 'none',
+    axis.text.y = element_blank(),
+    axis.text.x = element_text(size=7),
+    axis.title.y = element_blank(),
+    axis.title.x = element_blank(),
+    axis.ticks.y = element_blank(),
+    panel.border = element_blank()
+    ) +
+    scale_x_date(expand=c(0,0), date_breaks = "3 month", date_labels = "%b%y") +
+  ggtitle('Average Retail Prices of Selected Consumer Items (Jan 2018 to Dec 2022)')
+```
+
+attacks \<- attacks %\>%
+
+mutate(wday = lubridate::wday(timestamp,
+
+label =True
+
+abbr= True,),
+
+hour = lubridate::hour(timestamp))
+
+the code chunk above avoid to change date format.
