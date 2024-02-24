@@ -95,7 +95,7 @@
     "href": "Take-home_Ex/Take-home_ex02/Take-home_ex2.html#install-r-package",
     "title": "Take Home Exercise 2: DataVis Makeover",
     "section": "Install R package",
-    "text": "Install R package\nInstalling necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.\n\npacman::p_load(ggrepel, patchwork, \n               ggthemes, hrbrthemes,\n               tidyverse, haven, ggplot2, dplyr,ggstatsplot,tidyr) \n\npackage 'vctrs' successfully unpacked and MD5 sums checked\npackage 'dplyr' successfully unpacked and MD5 sums checked\npackage 'ggstatsplot' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\Li Zhongchao\\AppData\\Local\\Temp\\RtmpkzzHKS\\downloaded_packages"
+    "text": "Install R package\nInstalling necessary R packages that will be needed for this exercise. To load the requried packages the code chunk below use pacman::p_load() function is used to unsure that the packages are load to the current R work environment.\n\npacman::p_load(ggrepel, patchwork, \n               ggthemes, hrbrthemes,\n               tidyverse, haven, ggplot2, dplyr,ggstatsplot,tidyr)"
   },
   {
     "objectID": "Take-home_Ex/Take-home_ex02/Take-home_ex2.html#import-data",
@@ -207,7 +207,7 @@
     "href": "Hands-on_Ex/Hands-on_Ex04/Hand-on_Ex04.html#getting-started-3",
     "title": "Hands-on Exercise 4 Visual Analytics",
     "section": "3.2 Getting Started",
-    "text": "3.2 Getting Started\n\n3.2.1 Installing and loading the packages\nFor the purpose of this exercise, the following R packages will be used, they are:\n\ntidyverse, a family of R packages for data science process,\nplotly for creating interactive plot,\ngganimate for creating animation plot,\nDT for displaying interactive html table,\ncrosstalk for for implementing cross-widget interactions (currently, linked brushing and filtering), and\nggdist for visualising distribution and uncertainty.\n\n\ndevtools::install_github(\"wilkelab/ungeviz\")\n\n\npacman::p_load(ungeviz, plotly, crosstalk,\n               DT, ggdist, ggridges,\n               colorspace, gganimate, tidyverse)\n\n\n\n3.2.2 Data import\nFor the purpose of this exercise, Exam_data.csv will be used.\nexam &lt;- read_csv(\"data/Exam_data.csv\")"
+    "text": "3.2 Getting Started\n\n3.2.1 Installing and loading the packages\nFor the purpose of this exercise, the following R packages will be used, they are:\n\ntidyverse, a family of R packages for data science process,\nplotly for creating interactive plot,\ngganimate for creating animation plot,\nDT for displaying interactive html table,\ncrosstalk for for implementing cross-widget interactions (currently, linked brushing and filtering), and\nggdist for visualising distribution and uncertainty.\n\n\npacman::p_load(ungeviz, plotly, crosstalk,\n               DT, ggdist, ggridges,\n               colorspace, gganimate, tidyverse)\n\n\n\n3.2.2 Data import\nFor the purpose of this exercise, Exam_data.csv will be used.\nexam &lt;- read_csv(\"data/Exam_data.csv\")"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex04/Hand-on_Ex04.html#visualizing-the-uncertainty-of-point-estimates-ggplot2-methods",
@@ -228,7 +228,7 @@
     "href": "Hands-on_Ex/Hands-on_Ex04/Hand-on_Ex04.html#visualising-uncertainty-with-hypothetical-outcome-plots-hops",
     "title": "Hands-on Exercise 4 Visual Analytics",
     "section": "3.5 Visualising Uncertainty with Hypothetical Outcome Plots (HOPs)",
-    "text": "3.5 Visualising Uncertainty with Hypothetical Outcome Plots (HOPs)\nStep 1: Installing ungeviz package\n\ndevtools::install_github(\"wilkelab/ungeviz\")\n\n\nlibrary(ungeviz)\n\n\nggplot(data = exam, \n       (aes(x = factor(RACE), y = MATHS))) +\n  geom_point(position = position_jitter(\n    height = 0.3, width = 0.05), \n    size = 0.4, color = \"#0072B2\", alpha = 1/2) +\n  geom_hpline(data = sampler(25, group = RACE), height = 0.6, color = \"#D55E00\") +\n  theme_bw() + \n  # `.draw` is a generated column indicating the sample draw\n  transition_states(.draw, 1, 3)"
+    "text": "3.5 Visualising Uncertainty with Hypothetical Outcome Plots (HOPs)\nStep 1: Installing ungeviz package\n\n\n\nggplot(data = exam, \n       (aes(x = factor(RACE), y = MATHS))) +\n  geom_point(position = position_jitter(\n    height = 0.3, width = 0.05), \n    size = 0.4, color = \"#0072B2\", alpha = 1/2) +\n  geom_hpline(data = sampler(25, group = RACE), height = 0.6, color = \"#D55E00\") +\n  theme_bw() + \n  # `.draw` is a generated column indicating the sample draw\n  transition_states(.draw, 1, 3)"
   },
   {
     "objectID": "Hands-on_Ex/Hands-on_Ex04/Hand-on_Ex04.html#visualising-uncertainty-with-hypothetical-outcome-plots-hops-1",
