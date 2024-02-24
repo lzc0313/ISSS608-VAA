@@ -6,6 +6,8 @@ execute:
   eval: true
   echo: true
   warning: false
+  freeze: true
+  message: false
 editor: visual
 ---
 

@@ -1,0 +1,17 @@
+{
+  "hash": "f47fd4724f1ddf0f5b5ed2299699bace",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Hands-on Exercise 1\"\nauthor: \"Li Zhongchao\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n  message: false\n---\n\n\n# Getting Started\n\n## Install and launching R packages\n\nThe code chunk below used p_load() of pacman package to check if tidyverse packages are installed in the system. if they are,then they will be launched into R.\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(tidyverse)\n```\n:::\n\n\n## Importing the data\n\n\n::: {.cell}\n\n```{.r .cell-code}\nexam_data <- read_csv(\"data/Exam_data.csv\")\n```\n:::\n\n\n# Plotting a simple bar chart\n\n\n::: {.cell}\n\n```{.r .cell-code}\nggplot(data = exam_data,\n       aes(x = RACE)) + \n  geom_bar()\n```\n\n::: {.cell-output-display}\n![](Hand-on_Ex01_files/figure-html/unnamed-chunk-3-1.png){width=672}\n:::\n:::\n",
+    "supporting": [
+      "Hand-on_Ex01_files"
+    ],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}
