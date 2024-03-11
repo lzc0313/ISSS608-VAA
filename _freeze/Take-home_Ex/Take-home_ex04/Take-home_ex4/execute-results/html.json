@@ -1,0 +1,15 @@
+{
+  "hash": "a79ef2eaedf90380e42eaf3c37c2be81",
+  "result": {
+    "engine": "knitr",
+    "markdown": "---\ntitle: \"Take-home exercise 4 Visual Analytics\"\ndate: \"Mar 8,2024\"\ndate-modified: \"last-modified\"\nexecute: \n  eval: true\n  echo: true\n  warning: false\n  freeze: true\n  message: false\noutput:\n  quarto::quarto_html_document:\n    self_contained: true\neditor: visual\n---\n\n\n# **1  Overview**\n\nFor this Take Home Exercise, there are several task needs to be done to create the Shiny application.\n\n-   To evaluate and determine the necessary R packages needed for your Shiny application are supported in R CRAN,\n\n-   To prepare and test the specific R codes can be run and returned the correct output as expected,\n\n-   To determine the parameters and outputs that will be exposed on the Shiny applications, and\n\n-   To select the appropriate Shiny UI components for exposing the parameters determine above.\n\nThis submission includes the prototype report for the group project, which will includes:\n\n-   the data preparation process,\n\n-   the selection of data visualisation techniques used,\n\n-   and the data visualisation design and interactivity principles and best practices implemented.\n\n# **2  Project Infomation**\n\nThe purpose of this project is to create a Shiny app with user-friendly interface and functions, and also create a website for user to discover the historical Weather changes in Singapore.\n\n# **3  Get Started (Load R Packages)**\n\n\n::: {.cell}\n\n```{.r .cell-code}\npacman::p_load(sf,terra,gstat,tmap,viridis,tidyverse,dplyr)\n```\n:::\n\n\n# 4 . Data Preparation\n\nimport the merged data of all the stations across 10 years (2014-2023)\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrfdata <- read.csv('data/merged_data.csv')\n```\n:::\n\n\nImport the data that includes the latitude and longitude of the weather stations in Singapore.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrfstation <- read.csv('data/RainfallStation.csv')\n\nrfstation <- rfstation %>%\n  rename(Station = Station.Code)\n```\n:::\n\n\nJoin the latitude and longitude to the rfdata, so that in the analysis part we can map the geospatial analysis.\n\n\n::: {.cell}\n\n```{.r .cell-code}\nrfdata<- rfdata  %>%\n  left_join(rfstation, by = \"Station\")\n```\n:::\n\n\n# **5  Exploratory Data Analysis**\n\n# **6  Clustering**\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

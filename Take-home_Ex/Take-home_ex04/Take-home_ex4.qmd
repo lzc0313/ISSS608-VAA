@@ -1,0 +1,73 @@
+---
+title: "Take-home exercise 4 Visual Analytics"
+date: "Mar 8,2024"
+date-modified: "last-modified"
+execute: 
+  eval: true
+  echo: true
+  warning: false
+  freeze: true
+  message: false
+output:
+  quarto::quarto_html_document:
+    self_contained: true
+editor: visual
+---
+
+# **1  Overview**
+
+For this Take Home Exercise, there are several task needs to be done to create the Shiny application.
+
+-   To evaluate and determine the necessary R packages needed for your Shiny application are supported in R CRAN,
+
+-   To prepare and test the specific R codes can be run and returned the correct output as expected,
+
+-   To determine the parameters and outputs that will be exposed on the Shiny applications, and
+
+-   To select the appropriate Shiny UI components for exposing the parameters determine above.
+
+This submission includes the prototype report for the group project, which will includes:
+
+-   the data preparation process,
+
+-   the selection of data visualisation techniques used,
+
+-   and the data visualisation design and interactivity principles and best practices implemented.
+
+# **2  Project Infomation**
+
+The purpose of this project is to create a Shiny app with user-friendly interface and functions, and also create a website for user to discover the historical Weather changes in Singapore.
+
+# **3  Get Started (Load R Packages)**
+
+```{r}
+pacman::p_load(sf,terra,gstat,tmap,viridis,tidyverse,dplyr)
+```
+
+# 4 . Data Preparation
+
+import the merged data of all the stations across 10 years (2014-2023)
+
+```{r}
+rfdata <- read.csv('data/merged_data.csv')
+```
+
+Import the data that includes the latitude and longitude of the weather stations in Singapore.
+
+```{r}
+rfstation <- read.csv('data/RainfallStation.csv')
+
+rfstation <- rfstation %>%
+  rename(Station = Station.Code)
+```
+
+Join the latitude and longitude to the rfdata, so that in the analysis part we can map the geospatial analysis.
+
+```{r}
+rfdata<- rfdata  %>%
+  left_join(rfstation, by = "Station")
+```
+
+# **5  Exploratory Data Analysis**
+
+# **6  Clustering**
