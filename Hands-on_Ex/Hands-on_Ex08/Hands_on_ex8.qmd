@@ -60,7 +60,7 @@ The data sets used in this hands-on exercise is from an oil exploration and extr
 
 -   *GAStech_email_nodes.csv* which consist of the names, department and title of the 55 employees.
 
-![ ](images/clipboard-3738100703.png)
+![](images/clipboard-3738100703.png)
 
 ### **27.3.3 Importing network data from files**
 
