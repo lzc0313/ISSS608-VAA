@@ -45,7 +45,7 @@ The purpose of this project is to create a Shiny app with user-friendly interfac
 ```{r}
 pacman::p_load(tidyverse,ggridges,ggrepel,ggthemes,ggstatsplot,ggsignif,
                hrbrthemes,patchwork,dplyr, gifski, gapminder,plotly,
-               gganimate,ggiraph,magick,highcharter,knitr,naniar,DT,imputeTS,ggHoriPlot,stars,terra,gstat)
+               gganimate,ggiraph,magick,highcharter,knitr,naniar,DT,imputeTS,ggHoriPlot,stars,terra,gstat,RColorBrewer)
 ```
 
 # 4 . Data Preparation
@@ -391,7 +391,7 @@ colnames(weather_data_imputed)[8] <- "Max_Temperature"
 colnames(weather_data_imputed)[9] <- "Min_Temperature"
 ```
 
-# **5  Exploratory Data Analysis**
+# **5  EDA & CDA**
 
 ```{r}
 ggstatsplot::ggcorrmat(data = weather_data_imputed, type = "continuous")
@@ -517,126 +517,7 @@ box_plot_t1 <- ggplot(weather_data_imputed,
 box_plot_t1
 ```
 
-Data Preparation for map:
-
-```{r}
-mpsz2019 <- st_read(dsn = 'data/geospatial',
-                    layer = 'MPSZ-2019')%>%
-  st_transform(crs = 3414)
-
-```
-
-To getting start, we need create a grid data object by using `rast()` of **terra** package as shown in the cod chunk below.
-
-```{r}
-grid <- terra::rast(mpsz2019, 
-                    nrows = 690, 
-                    ncols = 1075)
-grid
-```
-
-Next, a list called xy will be created by using `xyFromCell()` of **terra** package.
-
-```{r}
-xy <- terra::xyFromCell(grid, 
-                        1:ncell(grid))
-head(xy)
-```
-
-::: callout-tip
-Tip
-
-xyFromCell()gets coordinates of the center of raster cells for a row, column, or cell number of a SpatRaster. Or get row, column, or cell numbers from coordinates or from each other.
-:::
-
-```{r}
-coop <- st_as_sf(as.data.frame(xy), 
-                 coords = c("x", "y"),
-                 crs = st_crs(mpsz2019))
-coop <- st_filter(coop, mpsz2019)
-head(coop)
-```
-
-## **Inverse Distance Weighted (IDW)**
-
-### **The method**
-
-In the IDW interpolation method, the sample points are weighted during interpolation such that the influence of one point relative to another declines with distance from the unknown point you want to create.
-
-### **Working with gstat**
-
-We are going to use three parameters of the gstat function:
-
--   formula: The prediction “formula” specifying the dependent and the independent variables (covariates)
-
--   data: The calibration data
-
--   model: The variogram model
-
-Keep in mind that we need to specify parameter names, because these three parameters are not the first three in the gstat function definition.
-
-For example, to interpolate using the IDW method we create the following gstat object, specifying just the formula and data:
-
-g = gstat(formula = annual \~ 1, data = rainfall)
-
-```{r}
-#res <- gstat(formula = MONTHSUM ~ 1, 
-#             locations = rfdata_sf, 
-#             nmax = 5,
-#             set = list(idp = 0))
-
-#resp <- predict(res, coop)
-
-#resp$x <- st_coordinates(resp)[,1]
-#resp$y <- st_coordinates(resp)[,2]
-#resp$pred <- resp$var1.pred
-
-#pred <- terra::rasterize(resp, grid, 
-#                         field = "pred", 
-#                         fun = "mean")
-
-#tmap_options(check.and.fix = TRUE)
-#tmap_mode("plot")
-#tm_shape(pred) + 
-#  tm_raster(alpha = 0.6, 
-#            palette = "viridis")
-```
-
-### **Working with gstat**
-
-Firstly, we will calculate and examine the empirical variogram by using `variogram()` of **gstat** package. The function requires two arguments:
-
--   formula, the dependent variable and the covariates (same as in gstat, see Section 12.2.1)
-
--   data, a point layer with the dependent variable and covariates as attributes
-
-as shown in the code chunk below.
-
-```{r}
-#v <- variogram(MONTHSUM ~ 1, 
-#               data = rfdata_sf)
-#plot(v)
-
-
-```
-
-side by side compare for tempurature and rainfall map.
-
-NEED TO IN CLUDE THE STATSTICAL TEST RESULTS
-
-heatmap interactive
-
-rain station:
-
-uncertainty, boxplot compare distribution, compare mean, median
-
-Horizon Plot
-
-Distribution of categorical data: 'Station', 'Month' 'Weekday'
-
-Distribution of Numerical data:
-
-# 6. Confirmatory Data Analysis
+## 5.2 CDA Hypothesis
 
 This confirmatory data analysis section will check the data based on the certain hypothesis made from the exploratory & descriptive analysis in the above sections.
 
@@ -646,11 +527,11 @@ As of now, two hypothesis are made:
 
 -   can we clearly identify the 'dry' and 'wet' month?
 
-## 6.1Does Singapore's Weather Change Across Different Years Shows Statistical Significant?
+### 5.2.1Does Singapore's Weather Change Across Different Years Shows Statistical Significant?
 
 In this part, the weather change accounts for both the temperature and the rainfall as given in the data used.
 
-### 6.1.1 Temperature
+#### 5.2.1.1 Temperature
 
 ```{r}
 temp_year1 <- weather_data_imputed %>%
@@ -985,7 +866,7 @@ All daily temperatures (mean, maximum and minimum) have p-value lower than 0.05 
 -   Even though the yearly median max temperature and median min temperature appears no statistical significant, but the daily max and min are statistically different.
 :::
 
-### 6.1.2 Rainfall
+#### 5.2.1.2 Rainfall
 
 For rainfall we will be using the daily rainfall total to test the hypothesis
 
@@ -1072,6 +953,34 @@ p8 <- ggbetweenstats(
 p8
 ```
 
+```{r}
+# Filter the data for a specific year
+rainfall_year_filtered <- rainfall_year %>%
+  filter(Year >= 2014, Year <= 2023)
+
+# Create the plotly violin plot
+p8_plotly <- plot_ly(data = rainfall_year_filtered,
+                     x = ~Year,
+                     y = ~yearly_rainfall,
+                     type = 'violin',
+                     spanmode = 'hard',
+                     marker = list(opacity = 0.5, line = list(width = 2)),
+                     box = list(visible = T),
+                     points = 'all',
+                     scalemode = 'count',
+                     meanline = list(visible = T, color = "red"),
+                     color = I('#caced8'),
+                     marker = list(line = list(width = 2, color = '#caced8'))
+                    ) %>%
+  layout(title = "Distribution of Rainfall from 2014 to 2023",
+         yaxis = list(title = "Rainfall volume (mm)"),
+         xaxis = list(title = "Year"))
+
+# Show the plot
+p8_plotly
+
+```
+
 Kruskal-Wallis test result at the top indicates a significant difference in rainfall distribution across the years (p-value \< 0.01), suggesting that at least one year has a statistically different total rainfall volume compared to the others.
 
 from the lines connecting the years we can observe that some years trend towards significance when the pHolm-adj is less than 1.00. Hence we can **reject the null hypothesis** and say that the rainfall over the years is **statistically significant**.
@@ -1107,10 +1016,301 @@ We can dig further into the daily rainfall total to see if there is statistical 
 We can also observe that some years the median daily rainfall is 0.00 or 0.20 (2014, 2015, 2019, etc.) suggesting low rainfall volume.
 :::
 
-## 6.2 Can We Clearly Identify the 'Dry' and 'Wet' Month?
+### 5.2.2 Can We Clearly Identify the 'Dry' and 'Wet' Month?
+
+Singapore which is a tropical country, means have no clear identification of the four seasons, but there are certain months which the 'cooler' compare to some months. In this section we will be testing the hypothesis on 'can we clearly identify the 'Dry' and 'Wet' Month'?
+
+First we need to filter the data to get monthly records, code chunk below:
+
+```{r}
+rf_data_month <- weather_data_imputed %>%
+  group_by(Year,Month) %>%
+  summarise(monthly_rainfall = sum(Daily_Rainfall_Total_mm))
+
+rf_data_month$Year <- factor(rf_data_month$Year)
+rf_data_month$Month <- factor(rf_data_month$Month, levels = as.character(1:12))
+
+DT::datatable(rf_data_month,class = "compact")
+```
+
+```{r}
+glimpse(rf_data_month)
+```
+
+```{r}
+temp_month <- weather_data_imputed %>%
+  group_by(Year,Month) %>%
+  summarise(median_mean_temp = median(Mean_Temperature),
+            median_max_temp = median(Max_Temperature),
+            median_min_temp = median(Min_Temperature))
+
+DT::datatable(temp_month,class = "compact")
+```
+
+To see the distribution of the monthly rainfall and Temperature, code chunk below:
+
+::: panel-tabset
+## Distribution of Monthly Rainfall
+
+```{r}
+color_palette <- brewer.pal("Set3", n = length(unique(rf_data_month$Year)))
+
+p18 <- ggplot(rf_data_month, aes(x = Month, y = monthly_rainfall, fill = Year)) +
+  geom_bar(stat = "identity") +
+  facet_wrap(~Year, scales = "free_x") +
+  labs(title = "Monthly Rainfall From Year 2014 to 2023",
+       y = "Rainfall volume (mm)",
+       x = "Month") +
+  theme_minimal() +
+  scale_fill_manual(values = color_palette) +
+  theme(panel.spacing.y = unit(0.5, "lines")) # Adjusted for less spacing
+
+p18
+```
+
+From the distribution of monthly rainfall from year 2014 to 2023, we can observe that the data is not normally distributed, hence non-parametric test will be used later.
+
+## Distribution of Monthly Mean Temperature
+
+```{r}
+p19 <- ggplot(temp_month,
+       aes(y = median_mean_temp,
+           x = Month,
+           colour = Year)) +
+  geom_line(size = 1.5)+
+  facet_wrap(~Year, scales = "free_x") +
+  labs(title="Monthly mean Temperature From 2014 to 2023",
+       y = "Temperature (°C)",
+       x = "Month")+
+  coord_cartesian(ylim = c(20,35))+
+  scale_x_discrete(limits = 1:12) + # Assuming Month is numeric already
+  theme_minimal() +
+  theme(panel.spacing.y = unit(0.5,"lines"))
+
+p19
+```
+
+From the distribution of monthly mean temperature from year 2014 to 2023, we can observe that the data is not normally distributed, hence non-parametric test will be used later.
+
+## Distribution of Monthly Max Temperature
+
+```{r}
+p20 <- ggplot(temp_month,
+       aes(y = median_max_temp,
+           x = Month,
+           colour = Year)) +
+  geom_line(size = 1.5)+
+  facet_wrap(~Year, scales = "free_x") +
+  labs(title="Monthly Maximum Temperature From 2014 to 2023",
+       y = "Temperature (°C)",
+       x = "Month")+
+  coord_cartesian(ylim = c(20,35))+
+  scale_x_discrete(limits = 1:12) + # Assuming Month is numeric already
+  theme_minimal() +
+  theme(panel.spacing.y = unit(0.5,"lines"))
+
+p20
+```
+
+From the distribution of monthly maximum temperature from year 2014 to 2023, we can observe that the data is not normally distributed, hence non-parametric test will be used later.
+
+## Distribution of Monthly Min Temperature
+
+```{r}
+p21 <- ggplot(temp_month,
+       aes(y = median_min_temp,
+           x = Month,
+           colour = Year)) +
+  geom_line(size = 1.5)+
+  facet_wrap(~Year, scales = "free_x") +
+  labs(title="Monthly Minimum Temperature From 2014 to 2023",
+       y = "Temperature (°C)",
+       x = "Month")+
+  coord_cartesian(ylim = c(20,35))+
+  scale_x_discrete(limits = 1:12) + # Assuming Month is numeric already
+  theme_minimal() +
+  theme(panel.spacing.y = unit(0.5,"lines"))
+
+p21
+```
+
+From the distribution of monthly minimum temperature from year 2014 to 2023, we can observe that the data is not normally distributed, hence non-parametric test will be used later.
+:::
+
+#### 5.2.2.1 Hypothesis testing
+
+To test Monthly Rainfall From Year 2014 to 2023:
+
+**The hypothesis is as follows:**
+
+*H~0~: There is no statistical difference between minimum temperature across months.*
+
+*H~1~: There is statistical difference between minimum temperature across months.*
+
+::: panel-tabset
+## Monthly Rainfall over years
+
+**Hypothesis:**
+
+*H~0~: There is no statistical difference in rainfall volume across months.*
+
+*H~1~: There is statistical difference in rainfall volume across months.*
+
+```{r}
+p22 <- ggbetweenstats(
+  data = rf_data_month,
+  x = Month, 
+  y = monthly_rainfall,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Rainfall across months 2014 to 2023",
+  ylab = "Rainfall volume (mm)",
+  xlab = "Month",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12), plot.title=element_text(size=12))
+p22
+```
+
+At CI of 95%, the Kruskal-Wallis test results give a p-value \< 0.05, which indicates there is statistical difference in the rainfall volume across different month in Singapore.
+
+-   Feb has significant different in rainfall volume comparing with Nov and Dec.
+
+-   2, 3, 7, 8, 9, 10 can consider 'Dry' as median rainfall volume lower or equal to around 1000mm per month.
+
+-   4, 5, 6, 11, 12 can consider a 'Wet' as median rainfall volume mainly higher than 1400mm per month.
+
+## Monthly Mean Temperature
+
+**Hypothesis:**
+
+*H~0~: There is no statistical difference between mean temperature across months.*
+
+*H~1~: There is statistical difference between mean temperature across months.*
+
+```{r}
+p23 <- ggbetweenstats(data = temp_month,
+                      x = Month,
+                      y = median_mean_temp,
+                      type = "np",
+                      messages = FALSE,
+                      title = "Distribution of Mean Temperature by month from 2014 to 2023",
+                      ylab = "Temperature (C)",
+                      xlab = "Month",
+                      ggsignif.args = list(textsize =4)) +
+  theme(text = element_text(size = 11),plot.title = element_text(size = 11))
+p23
+```
+
+At CI of 95%, the Kruskal-Wallis test results give a p-value \< 0.05, which indicates there is statistical difference in the mean temperature across different month in Singapore.
+
+-   It is observed that towards the middle of the 12 months, 5, 6, 7 ,8 ,9 has the highest median mean temperature .
+
+-   While months 1, 2, 11, 12 has the lowest median mean temperature.
+
+## Monthly Maximum Temperature
+
+**Hypothesis:**
+
+*H~0~: There is no statistical difference between maximum temperature across months.*
+
+*H~1~: There is statistical difference between maximum temperature across months.*
+
+```{r}
+p24 <- ggbetweenstats(data = temp_month,
+                      x = Month,
+                      y = median_max_temp,
+                      type = "np",
+                      messages = FALSE,
+                      title = "Distribution of Maximum Temperature by month from 2014 to 2023",
+                      ylab = "Temperature (C)",
+                      xlab = "Month",
+                      ggsignif.args = list(textsize =4)) +
+  theme(text = element_text(size = 11),plot.title = element_text(size = 11))
+p24
+```
+
+At CI of 95%, the Kruskal-Wallis test results give a p-value \< 0.05, which indicates there is statistical difference in the maximum temperature across different month in Singapore.
+
+-   The month with highest daily temperature is month 3, 4, 5 which average maximum temperature more than 32 Degree Celsius.
+
+-   Month with lowest daily temperature is January, with only average maximum temperature of 30.85 Degree Celsius.
+
+## Monthly Minimum Temperature
+
+**Hypothesis:**
+
+*H~0~: There is no statistical difference between minimum temperature across months.*
+
+*H~1~: There is statistical difference between minimum temperature across months.*
+
+```{r}
+p25 <- ggbetweenstats(data = temp_month,
+                      x = Month,
+                      y = median_min_temp,
+                      type = "np",
+                      messages = FALSE,
+                      title = "Distribution of Minimum Temperature by month from 2014 to 2023",
+                      ylab = "Temperature (C)",
+                      xlab = "Month",
+                      ggsignif.args = list(textsize =4)) +
+  theme(text = element_text(size = 11),plot.title = element_text(size = 11))
+p25
+```
+
+At CI of 95%, the Kruskal-Wallis test results give a p-value \< 0.05, which indicates there is statistical difference in the minimum temperature across different month in Singapore.
+:::
+
+From the hypothesis testing, result indicates that we can clearly identify the 'Dry' or 'Wet' months, and also the 'Hot' and 'Cool' months from the date used.
+
+From the hypothesis testing, several result can be shown:
+
+-   Dry Month: 2, 3, 7, 8, 9
+
+-   Wet Month :1, 6, 11, 12
+
+-   Hot Month: 3, 4, 5, 9, 10
+
+-   Cool Month: 1, 2, 11, 12
+
+-   Dry & Hot : 3, 9
+
+-   Wet & Cool : 1, 11, 12
+
+By identifying this can help Singapore Government to develop strategies to deal with different situations, and also to see the trend in future if there is shift in different type of month
 
 # 7. UI Design & Layout For Shiny-app
 
-for the control pannel there should be check box that affecting the model, not just displaying the changes
+Example for the control pannel there should be check box that affecting the model, not just displaying the changes, Just a sample for EDA:
 
 ![](images/clipboard-1384624989.png)
+
+User also able to select the type of test:
+
+-   parametric
+
+-   non-parametric
+
+-   robust
+
+-   bayes factor
+
+The plot type to enable user to select among the three options of plot type available for statistical analysis using `ggbetweenstats` function:
+
+-   boxplot
+
+-   violin
+
+-   violin-boxplot
+
+User able to select the confidence level for the test:
+
+-   95% CI
+
+-   99% CI
+
+Pairwise Display:
+
+-   Significant
+
+-   Non-significant
