@@ -677,7 +677,7 @@ gg <- ggplot(globalPop,
   labs(x = '% Aged', 
        y = '% Young')
 
-ggplotly(gg)
+gg
 ```
 
 The animated bubble plot above includes a play/pause button and a slider component for controlling the animation
@@ -699,7 +699,7 @@ gg <- ggplot(globalPop,
        y = '% Young') + 
   theme(legend.position='none')
 
-ggplotly(gg)
+gg
 ```
 
 ### **3.4.2 Building an animated bubble plot: `plot_ly()` method**

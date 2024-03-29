@@ -80,7 +80,7 @@ gg <- ggplot(temp_combined, aes(x = Day)) +
   theme_minimal() +
   theme(legend.title = element_blank())
 
-ggplotly(gg, tooltip = c("text", "y"))
+gg
 ```
 
 The user can hover over the graph to see the changes on the numbers for the years, by selecting the different values for mean maximum, and minimum user can have a clear view of the trend of temperature.
