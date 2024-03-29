@@ -43,11 +43,9 @@ The purpose of this project is to create a Shiny app with user-friendly interfac
 # **3  Get Started (Load R Packages)**
 
 ```{r}
-pacman::p_load(sf,terra,gstat,tmap,viridis,tidyverse,dplyr,naniar,imputeTS, DT, knitr, lubridate,
-               ggplot2, patchwork, ggthemes,
-               tseries, ggHoriPlot,
-               TSclust, fable, dtwclust, dendextend,
-               ggraph, plotly, factoextra, ggdendrosf,)
+pacman::p_load(tidyverse,ggridges,ggrepel,ggthemes,ggstatsplot,ggsignif,
+               hrbrthemes,patchwork,dplyr, gifski, gapminder,plotly,
+               gganimate,ggiraph,magick,highcharter,knitr,naniar,DT,imputeTS,ggHoriPlot,stars,terra,gstat)
 ```
 
 # 4 . Data Preparation
@@ -346,6 +344,26 @@ weather_data_imputed <- weather_data_imputed %>%
 time_period_start <- min(weather_data_imputed$Date)
 time_period_end <- max(weather_data_imputed$Date)
 cat("\nThe time period of the dataset is from", format(time_period_start, "%Y-%m-%d"),"to", format(time_period_end, "%Y-%m-%d"), "\n")
+
+```
+
+but i only want to keep until 2023, exclude record in 2024
+
+```{r}
+weather_data_imputed <- subset(weather_data_imputed, Date <= as.Date("2023-12-31"))
+
+time_period_start <- min(weather_data_imputed$Date)
+time_period_end <- max(weather_data_imputed$Date)
+cat("\nThe time period of the dataset is from", format(time_period_start, "%Y-%m-%d"),"to", format(time_period_end, "%Y-%m-%d"), "\n")
+```
+
+And also to ease further analysis, convert year, month, day to factor data type:
+
+```{r}
+weather_data_imputed <- weather_data_imputed %>%
+  mutate_at(vars(Year,Month,Day),as.factor)
+
+glimpse(weather_data_imputed)
 ```
 
 ```{r}
@@ -369,19 +387,17 @@ datatable(weather_data_imputed,
 ```{r}
 colnames(weather_data_imputed)[6] <- "Daily_Rainfall_Total_mm"
 colnames(weather_data_imputed)[7] <- "Mean_Temperature"
-colnames(weather_data_imputed)[8] <- "Min_Temperature"
-colnames(weather_data_imputed)[9] <- "Max_Temperature"
+colnames(weather_data_imputed)[8] <- "Max_Temperature"
+colnames(weather_data_imputed)[9] <- "Min_Temperature"
 ```
 
 # **5  Exploratory Data Analysis**
 
 ```{r}
-pacman::p_load("ggstatsplot")
-```
-
-```{r}
 ggstatsplot::ggcorrmat(data = weather_data_imputed, type = "continuous")
 ```
+
+For the explorartory analysis we can use boxplot to see the
 
 ```{r}
 
@@ -403,6 +419,28 @@ p1_interactive
 
 ```
 
+```{r}
+
+ggplot(data=weather_data_imputed, aes(x=Date,y=Mean_Temperature)) +
+  geom_line() + xlab("Year") + ylab("Daily Mean Temperature")
+```
+
+From the time series analysis on top, we clearly see that there is seasonal trend in different months in Singapore.
+
+```{r}
+weather_data_filtered <- weather_data_imputed %>%
+  filter(Station == "Changi")  # Filter the data for JFK airport
+
+# Plotting using ggplot2
+p <- ggplot(data = weather_data_filtered, aes(x = Date, y = Mean_Temperature, text = paste("Date: ", Date, "<br>Mean Temperature: ", Mean_Temperature))) +
+  geom_point() +  # Scatter plot
+  xlab("Date") + ylab("Daily Mean Temperature") +
+  ggtitle("Mean Temperature at Changi Weather Station")  # Add title
+
+# Convert ggplot to plotly
+ggplotly(p)
+```
+
 Horizon Plot:
 
 To have a more clear view of the distribution across the months, we can use a horizon plot to see the distribution and cut points.
@@ -415,12 +453,9 @@ weather_data <- weather_data_imputed %>%
   mutate(Day = day(Date)) %>%
   mutate(Date_mine = make_date(2023, month(Date), day(Date)))
 
-# Filter for specified year only
-#weather_data_2023 <- weather_data_imputed %>% 
-#  filter(Year == 2023) 
 
-# Step 1: compute origin and  horizon scale cutpoints: 
-cutpoints <- weather_data %>% 
+# compute origin and  horizon scale cutpoints: 
+cutoffs <- weather_data %>% 
   mutate(
     outlier = between(
       `Mean_Temperature`, 
@@ -430,9 +465,9 @@ cutpoints <- weather_data %>%
         1.5 * IQR(`Mean_Temperature`, na.rm = TRUE))) %>% 
   filter(outlier)
 
-ori <- sum(range(cutpoints$`Mean_Temperature`))/2
-sca <- seq(range(cutpoints$`Mean_Temperature`)[1], 
-           range(cutpoints$`Mean_Temperature`)[2], 
+ori <- sum(range(cutoffs$`Mean_Temperature`))/2
+sca <- seq(range(cutoffs$`Mean_Temperature`)[1], 
+           range(cutoffs$`Mean_Temperature`)[2], 
            length.out = 7)[-4]
 
 ori <- round(ori, 2) # The origin, rounded to 2 decimal places
@@ -466,6 +501,21 @@ weather_data %>% ggplot() +
 From the Analysis, we can see that clearly there are months with much lower temperature compare to other months. For example, Jan, Feb, Mar we can observe that they mostly have maximum temperature of 28 degrees celcirse
 
 After the data preparation, for exploratory data analysis will be introducing the horizon plot, and tmap to explore the data set will visual.
+
+Boxplot:
+
+```{r}
+box_plot_t1 <- ggplot(weather_data_imputed, 
+                   aes(y= Mean_Temperature,
+                       x = Year)) +
+  geom_boxplot()+
+  facet_wrap(~Station) +
+  theme(axis.text.x = element_text(angle = 60)) +
+  scale_x_discrete(name = "Year") +
+  scale_y_continuous(name = "Mean Temperature")
+
+box_plot_t1
+```
 
 Data Preparation for map:
 
@@ -530,26 +580,26 @@ For example, to interpolate using the IDW method we create the following gstat o
 g = gstat(formula = annual \~ 1, data = rainfall)
 
 ```{r}
-res <- gstat(formula = MONTHSUM ~ 1, 
-             locations = rfdata_sf, 
-             nmax = 5,
-             set = list(idp = 0))
+#res <- gstat(formula = MONTHSUM ~ 1, 
+#             locations = rfdata_sf, 
+#             nmax = 5,
+#             set = list(idp = 0))
 
-resp <- predict(res, coop)
+#resp <- predict(res, coop)
 
-resp$x <- st_coordinates(resp)[,1]
-resp$y <- st_coordinates(resp)[,2]
-resp$pred <- resp$var1.pred
+#resp$x <- st_coordinates(resp)[,1]
+#resp$y <- st_coordinates(resp)[,2]
+#resp$pred <- resp$var1.pred
 
-pred <- terra::rasterize(resp, grid, 
-                         field = "pred", 
-                         fun = "mean")
+#pred <- terra::rasterize(resp, grid, 
+#                         field = "pred", 
+#                         fun = "mean")
 
-tmap_options(check.and.fix = TRUE)
-tmap_mode("plot")
-tm_shape(pred) + 
-  tm_raster(alpha = 0.6, 
-            palette = "viridis")
+#tmap_options(check.and.fix = TRUE)
+#tmap_mode("plot")
+#tm_shape(pred) + 
+#  tm_raster(alpha = 0.6, 
+#            palette = "viridis")
 ```
 
 ### **Working with gstat**
@@ -563,9 +613,9 @@ Firstly, we will calculate and examine the empirical variogram by using `variogr
 as shown in the code chunk below.
 
 ```{r}
-v <- variogram(MONTHSUM ~ 1, 
-               data = rfdata_sf)
-plot(v)
+#v <- variogram(MONTHSUM ~ 1, 
+#               data = rfdata_sf)
+#plot(v)
 
 
 ```
@@ -582,9 +632,318 @@ uncertainty, boxplot compare distribution, compare mean, median
 
 Horizon Plot
 
+Distribution of categorical data: 'Station', 'Month' 'Weekday'
+
+Distribution of Numerical data:
+
 # 6. Confirmatory Data Analysis
 
-Distribution:
+This confirmatory data analysis section will check the data based on the certain hypothesis made from the exploratory & descriptive analysis in the above sections.
+
+As of now, two hypothesis are made:
+
+-   Does Singapore's weather change across different years shows statistical significant?
+
+-   can we clearly identify the 'dry' and 'wet' month?
+
+## 6.1Does Singapore's Weather Change Across Different Years Shows Statistical Significant?
+
+In this part, the weather change accounts for both the temperature and the rainfall as given in the data used.
+
+### 6.1.1 Temperature
+
+```{r}
+temp_year1 <- weather_data_imputed %>%
+  group_by(Station,Year) %>%
+  summarise(median_mean_temp = median(Mean_Temperature),
+            median_max_temp = median(Max_Temperature),
+            median_min_temp = median(Min_Temperature))
+
+DT::datatable(temp_year1,class = "compact")
+```
+
+```{r}
+glimpse(temp_year1)
+```
+
+Save the output as csv:
+
+```{r}
+write_csv(temp_year1, "data/temp_year1.csv")
+```
+
+To check out the median mean, max and min temperature:
+
+::: panel-tabset
+## Median Daily Mean Temperature
+
+```{r}
+plot_list <- lapply(unique(temp_year1$Station), function(stn) {
+  station_data <- subset(temp_year1, Station == stn)
+  
+  plot_ly(data = station_data, x = ~Year, y = ~median_mean_temp, name = stn, type = 'scatter', mode = 'lines',
+          hoverinfo = 'text', text = ~paste("Station:", stn, "<br>Year:", Year, "<br>Temp:", median_mean_temp)) %>%
+    layout(title = paste("Median Mean Temperature - Station:", stn),
+           xaxis = list(title = "Year"),
+           yaxis = list(title = "Temperature (°C)"))
+})
+
+p2 <- subplot(plot_list, nrows = length(unique(temp_year1$Station)), shareX = TRUE, titleX = FALSE)
+
+p2 <- layout(p2,
+                       title = "Median Daily Mean Temperature Across Weather Stations (2014-2023)",
+                       xaxis = list(tickangle = 90),
+                       margin = list(b = 80)) # Increase bottom margin to accommodate angled x-axis labels
+p2
+```
+
+Based on the line graph, we can not say that there the mean temperature across selected weather stations have significant changes from year 2014 to 2023.
+
+## Median Daily MAX Temperature
+
+```{r}
+plot_list <- lapply(unique(temp_year1$Station), function(stn) {
+  station_data <- subset(temp_year1, Station == stn)
+  
+  plot_ly(data = station_data, x = ~Year, y = ~median_max_temp, name = stn, type = 'scatter', mode = 'lines',
+          hoverinfo = 'text', text = ~paste("Station:", stn, "<br>Year:", Year, "<br>Temp:", median_max_temp)) %>%
+    layout(title = paste("Median Max Temperature - Station:", stn),
+           xaxis = list(title = "Year"),
+           yaxis = list(title = "Temperature (°C)"))
+})
+
+p3 <- subplot(plot_list, nrows = length(unique(temp_year1$Station)), shareX = TRUE, titleX = FALSE)
+
+p3 <- layout(p3,
+                       title = "Median Daily Maximum Temperature Across Weather Stations (2014-2023)",
+                       xaxis = list(tickangle = 90),
+                       margin = list(b = 80)) # Increase bottom margin to accommodate angled x-axis labels
+p3
+```
+
+## Median Daily MIN Temperature
+
+```{r}
+p4 <- lapply(unique(temp_year1$Station), function(stn) {
+  station_data <- subset(temp_year1, Station == stn)
+  
+  plot_ly(data = station_data, x = ~Year, y = ~median_min_temp, name = stn, type = 'scatter', mode = 'lines',
+          hoverinfo = 'text', text = ~paste("Station:", stn, "<br>Year:", Year, "<br>Temp:", median_min_temp)) %>%
+    layout(title = paste("Median Min Temperature - Station:", stn),
+           xaxis = list(title = "Year"),
+           yaxis = list(title = "Temperature (°C)"))
+})
+
+p4 <- subplot(p4, nrows = length(unique(temp_year1$Station)), shareX = TRUE, titleX = FALSE)
+
+p4 <- layout(p4,
+                       title = "Median Daily Minimum Temperature Across Weather Stations (2014-2023)",
+                       xaxis = list(tickangle = 90),
+                       margin = list(b = 80)) # Increase bottom margin to accommodate angled x-axis labels
+p4
+```
+:::
+
+Before performing statistical test on the significant level, is best to determine how the temperature data is distributed in the data. We can observe the normality of the data using ridgeline plots, using the code chunk below:
+
+::: panel-tabset
+## Normality Daily Mean Temperature
+
+```{r}
+p5 <- ggplot(weather_data_imputed, 
+       aes(x = Mean_Temperature, 
+           y = as.factor(Year), 
+           fill = 0.5 - abs(0.5 - ..ecdf..))) +
+  stat_density_ridges(geom = "density_ridges_gradient", 
+                      calc_ecdf = TRUE) +
+  scale_fill_viridis_c(name = "Tail probability",
+                       direction = -1,
+                       option="turbo") +
+  facet_wrap(~Station, scales = "free_y") + 
+  theme_ridges(font_size = 12) + # Adjusted for smaller text
+  coord_cartesian(xlim = c(0,50)) +
+  labs(title="Distribution of Mean Temperature from 2014 to 2023",
+       y="Station",
+       x="Mean Temperature (°C)")
+
+p5
+
+```
+
+Based on the above observation, as the mean temperature is not normally distributed, non-parametric test will be used.
+
+## Normality Daily Max Temperature
+
+```{r}
+p6 <- ggplot(weather_data_imputed, 
+       aes(x = Max_Temperature, 
+           y = as.factor(Year), 
+           fill = 0.5 - abs(0.5 - ..ecdf..))) +
+  stat_density_ridges(geom = "density_ridges_gradient", 
+                      calc_ecdf = TRUE) +
+  scale_fill_viridis_c(name = "Tail probability",
+                       direction = -1,
+                       option="turbo")+
+  facet_wrap(~Station, scales = "free_y") + 
+  theme_ridges(font_size = 12)+
+  coord_cartesian(xlim = c(0,50))+
+  labs(title="Distribution of Maximum Temperature from 2014 to 2023",
+       y="Station",
+       x="Maximum Temperature (°C)")
+
+p6
+```
+
+Based on the above observation, as the maximum temperature is not normally distributed, non-parametric test will be used.
+
+## Normality Daily Min Temperature
+
+```{r}
+p8 <- ggplot(weather_data_imputed, 
+       aes(x = Min_Temperature, 
+           y = as.factor(Year), 
+           fill = 0.5 - abs(0.5 - ..ecdf..))) +
+  stat_density_ridges(geom = "density_ridges_gradient", 
+                      calc_ecdf = TRUE) +
+  scale_fill_viridis_c(name = "Tail probability",
+                       direction = -1,
+                       option="turbo")+
+  facet_wrap(~Station, scales = "free_y") + 
+  theme_ridges(font_size = 12)+
+  coord_cartesian(xlim = c(0,50))+
+  labs(title="Distribution of Minimum Temperature from 2014 to 2023",
+       y="Station",
+       x="Minimum Temperature (°C)")
+
+p8
+```
+
+Based on the above observation, as the minimum temperature is not normally distributed, non-parametric test will be used.
+:::
+
+### 6.1.2 Rainfall
+
+For rainfall we will be using the daily rainfall total to test the hypothesis
+
+```{r}
+rainfall_year <- weather_data_imputed %>%
+  group_by(Station,Year) %>%
+  summarise(yearly_rainfall = sum(Daily_Rainfall_Total_mm))
+
+DT::datatable(rainfall_year,class = "compact")
+```
+
+```{r}
+write_csv(rainfall_year, "data/rainfall_year.csv")
+```
+
+```{r}
+plot_list <- lapply(unique(rainfall_year$Station), function(stn) {
+  station_data <- subset(rainfall_year, Station == stn)
+  
+  plot_ly(data = station_data, x = ~Year, y = ~yearly_rainfall, name = stn, type = 'scatter', mode = 'lines') %>%
+    layout(title = paste("Yearly Rainfall - Station:", stn),
+           xaxis = list(title = "Year", tickangle = 90),
+           yaxis = list(title = "Rainfall Volume (mm)"))
+})
+
+faceted_plot <- subplot(plot_list, nrows = length(unique(rainfall_year$Station)), shareX = TRUE, titleX = FALSE)
+
+faceted_plot <- layout(faceted_plot,
+                       title = "Yearly Rainfall Across Weather Stations (2014-2023)")
+faceted_plot
+
+```
+
+From the observations above, over the pass 10 years from 2014 to 2023 the total rainfall for Singapore captured by different stations indicates there is a volume increase. And every a few years it tend to drop to a low point(2015 and 2019) and will bounce back with even higher volume.
+
+We have to check if the different in years of the total rainfall are statistically different, before making any conclusions. But first lets see if the data follows a normal distribution or not in determine the method for test later.
+
+```{r}
+p7 <- ggplot(weather_data_imputed, 
+       aes(x = Daily_Rainfall_Total_mm, 
+           y = as.factor(Year), 
+           fill = 0.5 - abs(0.5 - ..ecdf..))) +
+  stat_density_ridges(geom = "density_ridges_gradient", 
+                      calc_ecdf = TRUE) +
+  scale_fill_viridis_c(name = "Tail probability",
+                       direction = -1,
+                       option="turbo")+
+  facet_wrap(~Station) + 
+  theme_ridges(font_size = 12)+
+  coord_cartesian(xlim = c(0,50))+
+  labs(title="Distribution of Daily Rainfall from 2014 to 2023",
+       y="Station",
+       x="Rainfall Volume (mm)")
+
+p7
+```
+
+From the distribution graph using sstat function called `stat_density_ridges()`of ggplot2. We can see that the rainfall distribution is not normally distributed, so non-parametric test will be used.
+
+::: panel-tabset
+## Median Rainfall Per Year
+
+**Hypothesis**:
+
+*H~0~: There is no statistical difference between median rainfall per year from 2014-2023.*
+
+*H~1~: There is statistical difference between median rainfall per year across 2014-2023.*
+
+```{r}
+p8 <- ggbetweenstats(
+  data = rainfall_year,
+  x = Year, 
+  y = yearly_rainfall,
+  type = "np",
+  pairwise.display = "non-significant",
+  messages = FALSE,
+  title="Distribution of Rainfall from 2014 to 2023",
+  ylab = "Rainfall volume (mm)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 5)
+) +
+  theme(text = element_text(size = 20), plot.title=element_text(size=20))
+
+p8
+```
+
+Kruskal-Wallis test result at the top indicates a significant difference in rainfall distribution across the years (p-value \< 0.01), suggesting that at least one year has a statistically different total rainfall volume compared to the others.
+
+from the lines connecting the years we can observe that some years trend towards significance when the pHolm-adj is less than 1.00. Hence we can **reject the null hypothesis** and say that the rainfall over the years is **statistically significant**.
+
+## Median Daily Rainfall 2014-2023
+
+**Hypothesis:**
+
+*H~0~: There is no statistical difference between median daily rainfall from 2014-2023.*
+
+*H~1~: There is statistical difference between median daily rainfall from 2014-2023.*
+
+```{r}
+p9 <- ggbetweenstats(
+  data = weather_data_imputed,
+  x = Year, 
+  y = Daily_Rainfall_Total_mm,
+  type = "np",
+  pairwise.display = "non-significant",
+  messages = FALSE,
+  title="Distribution of Rainfall from 2014 to 2023",
+  ylab = "Rainfall volume (mm)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 5)
+) +
+  theme(text = element_text(size = 20), plot.title=element_text(size=20))
+
+p9
+```
+
+We can dig further into the daily rainfall total to see if there is statistical significant. After undergo the test above, we can observe the test result that overall Kruskal-Wallis test is highly significant (p=2.84e−89), indicating there are differences in the distributions of daily rainfall volumes across the years.
+
+We can also observe that some years the median daily rainfall is 0.00 or 0.20 (2014, 2015, 2019, etc.) suggesting low rainfall volume.
+:::
+
+## 6.2 Can We Clearly Identify the 'Dry' and 'Wet' Month?
 
 # 7. UI Design & Layout For Shiny-app
 
