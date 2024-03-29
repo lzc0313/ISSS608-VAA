@@ -821,6 +821,170 @@ p8
 Based on the above observation, as the minimum temperature is not normally distributed, non-parametric test will be used.
 :::
 
+Default Non-Parametric tests temperature different per year:
+
+::: panel-tabset
+## Median Mean temperature Per Year
+
+**The hypothesis is as follows:**
+
+*H~0~: There is no statistical difference between yearly median mean temperature from 2014-2023.*
+
+*H~1~: There is statistical difference between yearly median mean temperature from 2014-2023.*
+
+```{r}
+p9 <- ggbetweenstats(
+  data = temp_year1,
+  x = Year, 
+  y = median_mean_temp,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Yearly Median Mean Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p9
+```
+
+Kruskal-Wallis Test: The test has a x\^2 value of 19.82 and a p-value of 0.02, which is below the conventional alpha level of 0.05. This suggests that there is statistically significant difference in median maximum temperatures across the years.
+
+## Median Max temperature Per Year
+
+**The** **hypothesis is as follows:**
+
+*H~0~: There is no statistical difference between yearly median max temperature from 2014-2023.*
+
+*H~1~: There is statistical difference between yearly median max temperature from 2014-2023.*
+
+```{r}
+p10 <- ggbetweenstats(
+  data = temp_year1,
+  x = Year, 
+  y = median_max_temp,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Yearly Median Maximum Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p10
+```
+
+**Kruskal-Wallis Test**: The test has a x\^2 value of 10.02 and a p-value of 0.35, which is above the conventional alpha level of 0.05. This suggests that there is no statistically significant difference in median maximum temperatures across the years. But from yearly difference we can further dig into the daily difference to see if there is a statistical difference.
+
+## Median Min temperature Per Year
+
+**The** **hypothesis is as follows:**
+
+*H~0~: There is no statistical difference between yearly median min temperature from 2014-2023.*
+
+*H~1~: There is statistical difference between yearly median min temperature from 2014-2023.*
+
+```{r}
+p11 <- ggbetweenstats(
+  data = temp_year1,
+  x = Year, 
+  y = median_min_temp,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Yearly Median Minimum Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p11
+```
+
+**Kruskal-Wallis Test**: The test has a x\^2 value of 14.72 and a p-value of 0.10, which is above the conventional alpha level of 0.05. This suggests that there is no statistically significant difference in median maximum temperatures across the years. But from yearly difference we can further dig into the daily difference to see if there is a statistical difference.
+:::
+
+::: panel-tabset
+## Daily Mean temperature
+
+**Hypothesis :**
+
+*H~0~: There is no statistical difference in daily mean temperature from 2014-2023.*
+
+*H~1~: There is statistical difference in daily mean temperature from 2014-2023.*
+
+```{r}
+p12 <- ggbetweenstats(
+  data = weather_data_imputed,
+  x = Year, 
+  y = Mean_Temperature,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Daily Minimum Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p12
+```
+
+## Daily Max temperature
+
+**Hypothesis :**
+
+*H~0~: There is no statistical difference in daily max temperature from 2014-2023.*
+
+*H~1~: There is statistical difference in daily max temperature from 2014-2023.*
+
+```{r}
+p13 <- ggbetweenstats(
+  data = weather_data_imputed,
+  x = Year, 
+  y = Max_Temperature,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Daily Maximum Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p13
+```
+
+## Daily Min temperature
+
+**Hypothesis :**
+
+*H~0~: There is no statistical difference in daily min temperature from 2014-2023.*
+
+*H~1~: There is statistical difference in daily min temperature from 2014-2023.*
+
+```{r}
+p14 <- ggbetweenstats(
+  data = weather_data_imputed,
+  x = Year, 
+  y = Min_Temperature,
+  type = "np",
+  messages = FALSE,
+  title="Distribution of Daily Minimum Temperature from 2014 to 2023",
+  ylab = "Temperature (°C)",
+  xlab = "Year",
+  ggsignif.args = list(textsize = 4)
+) +
+  theme(text = element_text(size = 12),plot.title=element_text(size=12))
+p14
+```
+:::
+
+::: callout-note
+## Important
+
+All daily temperatures (mean, maximum and minimum) have p-value lower than 0.05 which means they all shows statistical significant. Meaning there are statistical different in the mean, maximum and minimum daily temperature in Singapore.
+
+-   Even though the yearly median max temperature and median min temperature appears no statistical significant, but the daily max and min are statistically different.
+:::
+
 ### 6.1.2 Rainfall
 
 For rainfall we will be using the daily rainfall total to test the hypothesis
@@ -901,9 +1065,9 @@ p8 <- ggbetweenstats(
   title="Distribution of Rainfall from 2014 to 2023",
   ylab = "Rainfall volume (mm)",
   xlab = "Year",
-  ggsignif.args = list(textsize = 5)
+  ggsignif.args = list(textsize = 4)
 ) +
-  theme(text = element_text(size = 20), plot.title=element_text(size=20))
+  theme(text = element_text(size = 12), plot.title=element_text(size=12))
 
 p8
 ```
@@ -931,9 +1095,9 @@ p9 <- ggbetweenstats(
   title="Distribution of Rainfall from 2014 to 2023",
   ylab = "Rainfall volume (mm)",
   xlab = "Year",
-  ggsignif.args = list(textsize = 5)
+  ggsignif.args = list(textsize = 4)
 ) +
-  theme(text = element_text(size = 20), plot.title=element_text(size=20))
+  theme(text = element_text(size = 12), plot.title=element_text(size=12))
 
 p9
 ```
